@@ -9,6 +9,8 @@ import Login from "./pages/Login.tsx";
 import Canvas from "./pages/Canvas.tsx";
 import Signup from "./pages/SIgnup.tsx";
 import ProtectedRoutes from "./ProtectedRoutes.tsx";
+import { AuthProvider } from "./context/AuthContext.tsx";
+import "./index.css";
 
 const router = createBrowserRouter([
     {
@@ -47,7 +49,9 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
     <React.StrictMode>
         <StyledEngineProvider injectFirst>
-            <RouterProvider router={router} />
+            <AuthProvider>
+                <RouterProvider router={router} />
+            </AuthProvider>
         </StyledEngineProvider>
     </React.StrictMode>,
 );

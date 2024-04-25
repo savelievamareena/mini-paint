@@ -1,37 +1,41 @@
-import { auth } from "../../firebase.ts";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../../firebase.ts";
+import { Controller, useForm } from "react-hook-form";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { Button, FormControl, Link, TextField } from "@mui/material";
 
-type Inputs = {
+interface SignupFormValues {
     email: string;
     pass: string;
-    passConfirmation: string;
-};
+    passConfirm: string;
+}
 
 const Signup = () => {
+    const [authError, setAuthError] = useState("");
+    const [passError, setPassError] = useState("");
     const [registeredEmail, setRegisteredEmail] = useState("");
-    const [error, setError] = useState("");
     const navigate = useNavigate();
-
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<Inputs>();
 
     useEffect(() => {
         if (registeredEmail) {
-            navigate("/home", { state: { email: registeredEmail } });
+            navigate("/", { state: { email: registeredEmail } });
         }
     }, [registeredEmail]);
 
-    const onSubmit: SubmitHandler<Inputs> = (data) => {
+    const { control, handleSubmit, clearErrors } = useForm<SignupFormValues>({});
+
+    const onSubmit = (data: SignupFormValues) => {
+        if (data.pass !== data.passConfirm) {
+            setPassError("Passwords should be equal");
+            return;
+        }
+
         try {
             const registerUser = async () => {
                 const authUser = await createUserWithEmailAndPassword(auth, data.email, data.pass);
                 if (typeof authUser === "object" && authUser.user && authUser.user.email) {
+                    console.log("AUTH USER", authUser);
                     setRegisteredEmail(authUser.user.email);
                 }
             };
@@ -40,29 +44,101 @@ const Signup = () => {
             if (typeof error === "object" && error !== null && "message" in error) {
                 const firebaseError = error as { message: string };
                 console.error("Error creating user:", firebaseError.message);
-                setError(firebaseError.message);
+                setAuthError(firebaseError.message);
             } else {
                 console.error("Unknown error", error);
-                setError("Something went wrong");
+                setAuthError("Something went wrong");
             }
         }
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <input {...register("email", { required: true })} />
-            {errors.email && <span>This field is required</span>}
-
-            <input {...register("pass", { required: true })} />
-            {errors.pass && <span>This field is required</span>}
-
-            {/*<input {...register("passConfirmation", { required: true })} />*/}
-            {/*{errors.passConfirmation && <span>This field is required</span>}*/}
-
-            <div>{error}</div>
-
-            <input type='submit' />
-        </form>
+        <div
+            style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+                flexDirection: "column",
+            }}
+        >
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <FormControl sx={{ width: "50ch" }}>
+                    <Controller
+                        name='email'
+                        control={control}
+                        rules={{ required: "Email required" }}
+                        render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            <TextField
+                                label='Email'
+                                variant='outlined'
+                                onChange={(event) => {
+                                    onChange(event);
+                                    clearErrors("email");
+                                }}
+                                value={value}
+                                error={!!error}
+                                helperText={error ? error.message : " "}
+                                margin='dense'
+                            />
+                        )}
+                    />
+                    <Controller
+                        name='pass'
+                        control={control}
+                        rules={{ required: "Password required" }}
+                        render={({ field, fieldState }) => (
+                            <TextField
+                                {...field}
+                                label='Password'
+                                type='password'
+                                variant='outlined'
+                                onChange={field.onChange}
+                                value={field.value}
+                                error={!!fieldState.error}
+                                helperText={fieldState.error ? fieldState.error.message : " "}
+                                margin='dense'
+                            />
+                        )}
+                    />
+                    <Controller
+                        name='passConfirm'
+                        control={control}
+                        rules={{ required: "Password confirmation required" }}
+                        render={({ field, fieldState }) => (
+                            <TextField
+                                {...field}
+                                label='Confirm Password'
+                                type='password'
+                                variant='outlined'
+                                onChange={field.onChange}
+                                value={field.value}
+                                error={!!fieldState.error}
+                                helperText={fieldState.error ? fieldState.error.message : " "}
+                                margin='dense'
+                            />
+                        )}
+                    />
+                    <div>{passError ? passError : " "}</div>
+                    <div>{authError ? <span>{authError}</span> : " "}</div>
+                    <Button type='submit' variant='contained' color='primary' size='large'>
+                        Sign Up
+                    </Button>
+                </FormControl>
+            </form>
+            <div>Already have an account?</div>
+            <Link href='/login' underline='none'>
+                <Button
+                    type='submit'
+                    variant='outlined'
+                    color='primary'
+                    size='large'
+                    sx={{ width: "50ch" }}
+                >
+                    Log in
+                </Button>
+            </Link>
+        </div>
     );
 };
 

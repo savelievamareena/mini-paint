@@ -22,7 +22,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return onAuthStateChanged(auth, (user) => {
             setCurrentUser(user);
             setLoading(false);
-        }); // Ensure to return the unsubscribe function
+        });
     }, []);
 
     return (
