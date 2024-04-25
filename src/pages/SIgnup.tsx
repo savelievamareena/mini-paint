@@ -4,12 +4,7 @@ import { auth } from "../../firebase.ts";
 import { Controller, useForm } from "react-hook-form";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Button, FormControl, Link, TextField } from "@mui/material";
-
-interface SignupFormValues {
-    email: string;
-    pass: string;
-    passConfirm: string;
-}
+import { SignupFormValues } from "../../types.ts";
 
 const Signup = () => {
     const [authError, setAuthError] = useState("");
@@ -28,28 +23,30 @@ const Signup = () => {
     const onSubmit = (data: SignupFormValues) => {
         if (data.pass !== data.passConfirm) {
             setPassError("Passwords should be equal");
+            setTimeout(() => {
+                setPassError("");
+            }, 3000);
             return;
         }
 
-        try {
-            const registerUser = async () => {
+        const registerUser = async () => {
+            try {
                 const authUser = await createUserWithEmailAndPassword(auth, data.email, data.pass);
                 if (typeof authUser === "object" && authUser.user && authUser.user.email) {
-                    console.log("AUTH USER", authUser);
                     setRegisteredEmail(authUser.user.email);
                 }
-            };
-            registerUser();
-        } catch (error: unknown) {
-            if (typeof error === "object" && error !== null && "message" in error) {
-                const firebaseError = error as { message: string };
-                console.error("Error creating user:", firebaseError.message);
-                setAuthError(firebaseError.message);
-            } else {
-                console.error("Unknown error", error);
-                setAuthError("Something went wrong");
+            } catch (error: unknown) {
+                if (
+                    "code" in (error as { code?: string }) &&
+                    (error as { code?: string }).code === "auth/email-already-in-use"
+                ) {
+                    setAuthError("Email is already in use");
+                } else {
+                    setAuthError("Something went wrong");
+                }
             }
-        }
+        };
+        registerUser();
     };
 
     return (
@@ -68,6 +65,7 @@ const Signup = () => {
                         name='email'
                         control={control}
                         rules={{ required: "Email required" }}
+                        defaultValue=''
                         render={({ field: { onChange, value }, fieldState: { error } }) => (
                             <TextField
                                 label='Email'
