@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { StyledEngineProvider } from "@mui/material/styles";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Layout from "./pages/Layout.tsx";
+import Layout from "./Layout.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Homepage from "./pages/Homepage.tsx";
 import Login from "./pages/Login.tsx";
