@@ -52,15 +52,7 @@ const Login = () => {
     };
 
     return (
-        <div
-            style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-                flexDirection: "column",
-            }}
-        >
+        <div className='signup_wrapper'>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <FormControl sx={{ width: "50ch" }}>
                     <Controller
@@ -74,7 +66,6 @@ const Login = () => {
                                 onChange={(event) => {
                                     onChange(event);
                                     clearErrors("email");
-                                    console.log(value);
                                 }}
                                 value={value}
                                 error={!!error}
@@ -103,7 +94,7 @@ const Login = () => {
                             />
                         )}
                     />
-                    <div className='form_message_container'>
+                    <div className='form_message_container error'>
                         {authError ? <span>{authError}</span> : " "}
                     </div>
                     <Button type='submit' variant='contained' color='primary' size='large'>

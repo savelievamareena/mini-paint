@@ -65,15 +65,7 @@ const Signup = () => {
     };
 
     return (
-        <div
-            style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-                flexDirection: "column",
-            }}
-        >
+        <div className='signup_wrapper'>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <FormControl sx={{ width: "50ch" }}>
                     <Controller
@@ -132,9 +124,8 @@ const Signup = () => {
                             />
                         )}
                     />
-                    <div className='form_message_container'>{passError ? passError : " "}</div>
-                    <div className='form_message_container'>
-                        {authError ? <span>{authError}</span> : " "}
+                    <div className='form_message_container error'>
+                        {passError ? passError : authError ? authError : ""}
                     </div>
                     <Button type='submit' variant='contained' color='primary' size='large'>
                         Sign Up
