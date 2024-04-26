@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase.ts";
 import { Button, FormControl, Link, TextField } from "@mui/material";
-import { SignupFormValues } from "../../types.ts";
 
-type LoginFormValues = Omit<SignupFormValues, "passConfirm">;
+const schema = z.object({
+    email: z.string().email("This is not a valid email."),
+    password: z.string().min(6, { message: "Password should be at least 6 symbols" }),
+});
+
+type Schema = z.infer<typeof schema>;
 
 const Login = () => {
     const [authError, setAuthError] = useState("");
@@ -19,16 +25,19 @@ const Login = () => {
         }
     }, [registeredEmail]);
 
-    const { control, handleSubmit, clearErrors } = useForm<LoginFormValues>({});
+    const { control, handleSubmit, clearErrors } = useForm<Schema>({
+        resolver: zodResolver(schema),
+    });
 
-    const onSubmit = (data: LoginFormValues) => {
+    const onSubmit = (data: Schema) => {
         const loginUser = async () => {
             try {
-                const authUser = await signInWithEmailAndPassword(auth, data.email, data.pass);
+                const authUser = await signInWithEmailAndPassword(auth, data.email, data.password);
                 if (typeof authUser === "object" && authUser.user && authUser.user.email) {
                     setRegisteredEmail(authUser.user.email);
                 }
             } catch (error: unknown) {
+                console.log(error);
                 if (
                     "code" in (error as { code?: string }) &&
                     (error as { code?: string }).code === "auth/invalid-credential"
@@ -57,7 +66,6 @@ const Login = () => {
                     <Controller
                         name='email'
                         control={control}
-                        rules={{ required: "Email required" }}
                         defaultValue=''
                         render={({ field: { onChange, value }, fieldState: { error } }) => (
                             <TextField
@@ -66,6 +74,7 @@ const Login = () => {
                                 onChange={(event) => {
                                     onChange(event);
                                     clearErrors("email");
+                                    console.log(value);
                                 }}
                                 value={value}
                                 error={!!error}
@@ -75,9 +84,9 @@ const Login = () => {
                         )}
                     />
                     <Controller
-                        name='pass'
+                        name='password'
                         control={control}
-                        rules={{ required: "Password required" }}
+                        defaultValue=''
                         render={({ field: { onChange, value }, fieldState: { error } }) => (
                             <TextField
                                 label='Password'
@@ -94,14 +103,16 @@ const Login = () => {
                             />
                         )}
                     />
-                    <div>{authError ? <span>{authError}</span> : " "}</div>
+                    <div className='form_message_container'>
+                        {authError ? <span>{authError}</span> : " "}
+                    </div>
                     <Button type='submit' variant='contained' color='primary' size='large'>
                         Log In
                     </Button>
                 </FormControl>
             </form>
-            <div>Don't have an account?</div>
-            <Link href='/signup' underline='none'>
+            <div className='form_message_container'>Don't have an account?</div>
+            <Link to='/signup' underline='none' component={RouterLink}>
                 <Button
                     type='submit'
                     variant='outlined'

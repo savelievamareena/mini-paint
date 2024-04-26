@@ -1,10 +1,19 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { auth } from "../../firebase.ts";
 import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Button, FormControl, Link, TextField } from "@mui/material";
-import { SignupFormValues } from "../../types.ts";
+
+const schema = z.object({
+    email: z.string().email("This is not a valid email."),
+    password: z.string().min(6, { message: "Password should be at least 6 symbols" }),
+    passwordConfirm: z.string().min(6, { message: "Password should be at least 6 symbols" }),
+});
+
+type Schema = z.infer<typeof schema>;
 
 const Signup = () => {
     const [authError, setAuthError] = useState("");
@@ -18,10 +27,12 @@ const Signup = () => {
         }
     }, [registeredEmail]);
 
-    const { control, handleSubmit, clearErrors } = useForm<SignupFormValues>({});
+    const { control, handleSubmit, clearErrors } = useForm<Schema>({
+        resolver: zodResolver(schema),
+    });
 
-    const onSubmit = (data: SignupFormValues) => {
-        if (data.pass !== data.passConfirm) {
+    const onSubmit = (data: Schema) => {
+        if (data.password !== data.passwordConfirm) {
             setPassError("Passwords should be equal");
             setTimeout(() => {
                 setPassError("");
@@ -31,7 +42,11 @@ const Signup = () => {
 
         const registerUser = async () => {
             try {
-                const authUser = await createUserWithEmailAndPassword(auth, data.email, data.pass);
+                const authUser = await createUserWithEmailAndPassword(
+                    auth,
+                    data.email,
+                    data.password,
+                );
                 if (typeof authUser === "object" && authUser.user && authUser.user.email) {
                     setRegisteredEmail(authUser.user.email);
                 }
@@ -64,7 +79,6 @@ const Signup = () => {
                     <Controller
                         name='email'
                         control={control}
-                        rules={{ required: "Email required" }}
                         defaultValue=''
                         render={({ field: { onChange, value }, fieldState: { error } }) => (
                             <TextField
@@ -73,6 +87,7 @@ const Signup = () => {
                                 onChange={(event) => {
                                     onChange(event);
                                     clearErrors("email");
+                                    console.log(value);
                                 }}
                                 value={value}
                                 error={!!error}
@@ -82,9 +97,9 @@ const Signup = () => {
                         )}
                     />
                     <Controller
-                        name='pass'
+                        name='password'
                         control={control}
-                        rules={{ required: "Password required" }}
+                        defaultValue=''
                         render={({ field, fieldState }) => (
                             <TextField
                                 {...field}
@@ -100,9 +115,9 @@ const Signup = () => {
                         )}
                     />
                     <Controller
-                        name='passConfirm'
+                        name='passwordConfirm'
                         control={control}
-                        rules={{ required: "Password confirmation required" }}
+                        defaultValue=''
                         render={({ field, fieldState }) => (
                             <TextField
                                 {...field}
@@ -117,15 +132,17 @@ const Signup = () => {
                             />
                         )}
                     />
-                    <div>{passError ? passError : " "}</div>
-                    <div>{authError ? <span>{authError}</span> : " "}</div>
+                    <div className='form_message_container'>{passError ? passError : " "}</div>
+                    <div className='form_message_container'>
+                        {authError ? <span>{authError}</span> : " "}
+                    </div>
                     <Button type='submit' variant='contained' color='primary' size='large'>
                         Sign Up
                     </Button>
                 </FormControl>
             </form>
-            <div>Already have an account?</div>
-            <Link href='/login' underline='none'>
+            <div className='form_message_container'>Already have an account?</div>
+            <Link to='/login' underline='none' component={RouterLink}>
                 <Button
                     type='submit'
                     variant='outlined'
