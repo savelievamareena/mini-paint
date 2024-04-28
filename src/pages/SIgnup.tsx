@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Button, FormControl, Link, TextField } from "@mui/material";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const schema = z.object({
     email: z.string().email("This is not a valid email."),
@@ -26,6 +28,9 @@ const Signup = () => {
             navigate("/", { state: { email: registeredEmail } });
         }
     }, [registeredEmail]);
+
+    const notifySuccess = () => toast.success("Success!", { position: "bottom-left" });
+    const notifyError = () => toast.error("Error!", { position: "bottom-left" });
 
     const { control, handleSubmit, clearErrors } = useForm<Schema>({
         resolver: zodResolver(schema),
@@ -48,9 +53,11 @@ const Signup = () => {
                     data.password,
                 );
                 if (typeof authUser === "object" && authUser.user && authUser.user.email) {
+                    notifySuccess();
                     setRegisteredEmail(authUser.user.email);
                 }
             } catch (error: unknown) {
+                notifyError();
                 if (
                     "code" in (error as { code?: string }) &&
                     (error as { code?: string }).code === "auth/email-already-in-use"
@@ -79,7 +86,6 @@ const Signup = () => {
                                 onChange={(event) => {
                                     onChange(event);
                                     clearErrors("email");
-                                    console.log(value);
                                 }}
                                 value={value}
                                 error={!!error}
@@ -144,6 +150,7 @@ const Signup = () => {
                     Log in
                 </Button>
             </Link>
+            <ToastContainer />
         </div>
     );
 };

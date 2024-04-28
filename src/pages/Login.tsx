@@ -6,6 +6,8 @@ import { z } from "zod";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase.ts";
 import { Button, FormControl, Link, TextField } from "@mui/material";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const schema = z.object({
     email: z.string().email("This is not a valid email."),
@@ -18,6 +20,9 @@ const Login = () => {
     const [authError, setAuthError] = useState("");
     const [registeredEmail, setRegisteredEmail] = useState("");
     const navigate = useNavigate();
+
+    const notifySuccess = () => toast.success("Success!", { position: "bottom-left" });
+    const notifyError = () => toast.error("Error!", { position: "bottom-left" });
 
     useEffect(() => {
         if (registeredEmail) {
@@ -34,10 +39,11 @@ const Login = () => {
             try {
                 const authUser = await signInWithEmailAndPassword(auth, data.email, data.password);
                 if (typeof authUser === "object" && authUser.user && authUser.user.email) {
+                    notifySuccess();
                     setRegisteredEmail(authUser.user.email);
                 }
             } catch (error: unknown) {
-                console.log(error);
+                notifyError();
                 if (
                     "code" in (error as { code?: string }) &&
                     (error as { code?: string }).code === "auth/invalid-credential"
@@ -114,6 +120,7 @@ const Login = () => {
                     Sign up
                 </Button>
             </Link>
+            <ToastContainer />
         </div>
     );
 };
