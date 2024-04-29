@@ -1,21 +1,28 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { auth } from "../../firebase.ts";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { Button, FormControl, Link, TextField } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
+import SignupForm from "../modules/SignupForm.tsx";
+import SignupFormField from "../components/SignupFormField.tsx";
+import { Button, Link } from "@mui/material";
+import { FormValues } from "../../types.ts";
 import "react-toastify/dist/ReactToastify.css";
 
 const schema = z.object({
-    email: z.string().email("This is not a valid email."),
+    email: z.string().email("This is not a valid email"),
     password: z.string().min(6, { message: "Password should be at least 6 symbols" }),
     passwordConfirm: z.string().min(6, { message: "Password should be at least 6 symbols" }),
 });
 
-type Schema = z.infer<typeof schema>;
+const defaultValues: FormValues = {
+    email: "",
+    password: "",
+    passwordConfirm: "",
+};
+
+export type Schema = z.infer<typeof schema>;
 
 const Signup = () => {
     const [authError, setAuthError] = useState("");
@@ -31,10 +38,6 @@ const Signup = () => {
 
     const notifySuccess = () => toast.success("Success!", { position: "bottom-left" });
     const notifyError = () => toast.error("Error!", { position: "bottom-left" });
-
-    const { control, handleSubmit, clearErrors } = useForm<Schema>({
-        resolver: zodResolver(schema),
-    });
 
     const onSubmit = (data: Schema) => {
         if (data.password !== data.passwordConfirm) {
@@ -66,6 +69,10 @@ const Signup = () => {
                 } else {
                     setAuthError("Something went wrong");
                 }
+
+                setTimeout(() => {
+                    setAuthError("");
+                }, 3000);
             }
         };
         registerUser();
@@ -73,71 +80,23 @@ const Signup = () => {
 
     return (
         <div className='signup_wrapper'>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <FormControl sx={{ width: "50ch" }}>
-                    <Controller
-                        name='email'
-                        control={control}
-                        defaultValue=''
-                        render={({ field: { onChange, value }, fieldState: { error } }) => (
-                            <TextField
-                                label='Email'
-                                variant='outlined'
-                                onChange={(event) => {
-                                    onChange(event);
-                                    clearErrors("email");
-                                }}
-                                value={value}
-                                error={!!error}
-                                helperText={error ? error.message : " "}
-                                margin='dense'
-                            />
-                        )}
-                    />
-                    <Controller
-                        name='password'
-                        control={control}
-                        defaultValue=''
-                        render={({ field, fieldState }) => (
-                            <TextField
-                                {...field}
-                                label='Password'
-                                type='password'
-                                variant='outlined'
-                                onChange={field.onChange}
-                                value={field.value}
-                                error={!!fieldState.error}
-                                helperText={fieldState.error ? fieldState.error.message : " "}
-                                margin='dense'
-                            />
-                        )}
-                    />
-                    <Controller
-                        name='passwordConfirm'
-                        control={control}
-                        defaultValue=''
-                        render={({ field, fieldState }) => (
-                            <TextField
-                                {...field}
-                                label='Confirm Password'
-                                type='password'
-                                variant='outlined'
-                                onChange={field.onChange}
-                                value={field.value}
-                                error={!!fieldState.error}
-                                helperText={fieldState.error ? fieldState.error.message : " "}
-                                margin='dense'
-                            />
-                        )}
-                    />
-                    <div className='form_message_container error'>
-                        {passError ? passError : authError ? authError : ""}
-                    </div>
-                    <Button type='submit' variant='contained' color='primary' size='large'>
-                        Sign Up
-                    </Button>
-                </FormControl>
-            </form>
+            <SignupForm
+                schema={schema}
+                defaultValues={defaultValues}
+                onSubmit={onSubmit}
+                authError={authError}
+                passError={passError}
+                submitButtonText={"Sign Up"}
+            >
+                <SignupFormField name='email' label='Email' type='text' />
+                <SignupFormField name='password' label='Password' type='password' />
+                <SignupFormField
+                    name='passwordConfirm'
+                    label='Password Confirmation'
+                    type='password'
+                />
+            </SignupForm>
+
             <div className='form_message_container'>Already have an account?</div>
             <Link to='/login' underline='none' component={RouterLink}>
                 <Button

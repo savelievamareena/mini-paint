@@ -1,20 +1,26 @@
 import { useEffect, useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase.ts";
-import { Button, FormControl, Link, TextField } from "@mui/material";
+import { Button, Link } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import SignupFormField from "../components/SignupFormField.tsx";
+import SignupForm from "../modules/SignupForm.tsx";
+import { FormValues } from "../../types.ts";
 
 const schema = z.object({
-    email: z.string().email("This is not a valid email."),
+    email: z.string().email("This is not a valid email"),
     password: z.string().min(6, { message: "Password should be at least 6 symbols" }),
 });
 
-type Schema = z.infer<typeof schema>;
+const defaultValues: FormValues = {
+    email: "",
+    password: "",
+};
+
+export type Schema = z.infer<typeof schema>;
 
 const Login = () => {
     const [authError, setAuthError] = useState("");
@@ -29,10 +35,6 @@ const Login = () => {
             navigate("/", { state: { email: registeredEmail } });
         }
     }, [registeredEmail]);
-
-    const { control, handleSubmit, clearErrors } = useForm<Schema>({
-        resolver: zodResolver(schema),
-    });
 
     const onSubmit = (data: Schema) => {
         const loginUser = async () => {
@@ -59,55 +61,17 @@ const Login = () => {
 
     return (
         <div className='signup_wrapper'>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <FormControl sx={{ width: "50ch" }}>
-                    <Controller
-                        name='email'
-                        control={control}
-                        defaultValue=''
-                        render={({ field: { onChange, value }, fieldState: { error } }) => (
-                            <TextField
-                                label='Email'
-                                variant='outlined'
-                                onChange={(event) => {
-                                    onChange(event);
-                                    clearErrors("email");
-                                }}
-                                value={value}
-                                error={!!error}
-                                helperText={error ? error.message : " "}
-                                margin='dense'
-                            />
-                        )}
-                    />
-                    <Controller
-                        name='password'
-                        control={control}
-                        defaultValue=''
-                        render={({ field: { onChange, value }, fieldState: { error } }) => (
-                            <TextField
-                                label='Password'
-                                type='password'
-                                variant='outlined'
-                                onChange={(event) => {
-                                    onChange(event);
-                                    clearErrors("email");
-                                }}
-                                value={value}
-                                error={!!error}
-                                helperText={error ? error.message : " "}
-                                margin='dense'
-                            />
-                        )}
-                    />
-                    <div className='form_message_container error'>
-                        {authError ? <span>{authError}</span> : " "}
-                    </div>
-                    <Button type='submit' variant='contained' color='primary' size='large'>
-                        Log In
-                    </Button>
-                </FormControl>
-            </form>
+            <SignupForm
+                schema={schema}
+                defaultValues={defaultValues}
+                onSubmit={onSubmit}
+                authError={authError}
+                submitButtonText={"Log In"}
+            >
+                <SignupFormField name='email' label='Email' type='text' />
+                <SignupFormField name='password' label='Password' type='password' />
+            </SignupForm>
+
             <div className='form_message_container'>Don't have an account?</div>
             <Link to='/signup' underline='none' component={RouterLink}>
                 <Button
