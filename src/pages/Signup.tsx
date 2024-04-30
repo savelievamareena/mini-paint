@@ -7,6 +7,7 @@ import Form from "../components/Form.tsx";
 import FormTextField from "../components/FormTextField.tsx";
 import { Button, Link } from "@mui/material";
 import "react-toastify/dist/ReactToastify.css";
+import "./styles/pages.css";
 
 type FormValues = z.infer<typeof schema>;
 

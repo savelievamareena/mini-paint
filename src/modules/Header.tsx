@@ -4,6 +4,7 @@ import BrushIcon from "@mui/icons-material/Brush";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.tsx";
 import { getAuth, signOut } from "firebase/auth";
+import "./styles/modules.css";
 
 const Header = () => {
     const { currentUser } = useAuth();
