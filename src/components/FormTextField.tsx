@@ -9,11 +9,11 @@ interface FormInputProps {
     variant?: "outlined" | "filled" | "standard";
 }
 
-const SignupFormField = ({
+const FormTextField = ({
     name,
     label,
     type,
-    margin = "dense",
+    margin = "normal",
     variant = "outlined",
 }: FormInputProps) => {
     const {
@@ -38,4 +38,4 @@ const SignupFormField = ({
     );
 };
 
-export default SignupFormField;
+export default FormTextField;

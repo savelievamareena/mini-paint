@@ -1,20 +1,14 @@
 import { ZodSchema } from "zod";
 import React from "react";
+import { DefaultValues, FieldValues, SubmitHandler } from "react-hook-form";
 
-interface FormValues {
-    email: string;
-    password: string;
-    passwordConfirm?: string;
-}
-
-interface SignupFormProps {
-    schema: ZodSchema<any>;
-    onSubmit: (data: any) => void;
+interface SignupFormProps<T extends FieldValues> {
+    schema: ZodSchema<T>;
+    onSubmit: SubmitHandler<T>;
     children: React.ReactNode;
     authError?: string;
     passError?: string;
-    defaultValues: FormValues;
-    submitButtonText: string;
+    defaultValues: DefaultValues<T>;
 }
 
-export type { FormValues, SignupFormProps };
+export type { SignupFormProps };

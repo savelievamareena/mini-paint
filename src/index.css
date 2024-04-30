@@ -29,16 +29,6 @@ h1 {
     position: relative;
 }
 
-.form_message_container {
-    margin: 8px;
-    min-height: 24px;
-    text-align: center;
-}
-
-.form_message_container.error{
-    color: red;
-}
-
 .header_wrapper {
     display: flex;
     flex-direction: row;
@@ -47,15 +37,34 @@ h1 {
     padding: 12px 300px;
     min-height: 60px;
     background-color: rgba(195, 192, 192, 0.76);
-
 }
 
-.signup_wrapper {
-    margin-top: 200px;
+.form_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.form_wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    margin-top: 200px;
+    width: 25%;
+}
+
+.form_message_container {
+    margin-top: 20px;
+}
+
+.form_component {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
 }
 
 .header_left {

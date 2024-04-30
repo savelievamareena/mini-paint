@@ -1,8 +1,7 @@
 import HomeIcon from "@mui/icons-material/Home";
 import LogoutIcon from "@mui/icons-material/Logout";
 import BrushIcon from "@mui/icons-material/Brush";
-import { Link } from "@mui/material";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.tsx";
 import { getAuth, signOut } from "firebase/auth";
 
@@ -27,17 +26,17 @@ const Header = () => {
     const routePaint: string = currentUser ? "/canvas" : "/login";
 
     return (
-        <div className='header_wrapper'>
-            <div className='header_left'>
-                <Link to={routeHome} underline='none' component={RouterLink}>
+        <header className='header_wrapper'>
+            <nav className='header_left'>
+                <NavLink to={routeHome}>
                     <HomeIcon sx={{ fontSize: 40 }} color='primary' />
-                </Link>
+                </NavLink>
                 {currentUser && (
-                    <Link to={routePaint} underline='none' component={RouterLink}>
+                    <NavLink to={routePaint}>
                         <BrushIcon sx={{ fontSize: 40 }} color='primary' />
-                    </Link>
+                    </NavLink>
                 )}
-            </div>
+            </nav>
             <div className='header_right'>
                 <div>{currentUser && <span>{currentUser.email}</span>}</div>
                 <div>
@@ -48,7 +47,7 @@ const Header = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </header>
     );
 };
 
