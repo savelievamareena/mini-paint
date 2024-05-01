@@ -1,10 +1,13 @@
+import { NavLink, useNavigate } from "react-router-dom";
+import { getAuth, signOut } from "firebase/auth";
+import { toast, ToastContainer } from "react-toastify";
 import HomeIcon from "@mui/icons-material/Home";
 import LogoutIcon from "@mui/icons-material/Logout";
 import BrushIcon from "@mui/icons-material/Brush";
-import { NavLink, useNavigate } from "react-router-dom";
+import Box from "@mui/material/Box";
+import { Stack } from "@mui/material";
 import { useAuth } from "../context/AuthContext.tsx";
-import { getAuth, signOut } from "firebase/auth";
-import "./styles/modules.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const Header = () => {
     const { currentUser } = useAuth();
@@ -14,12 +17,10 @@ const Header = () => {
     function handleLogout() {
         signOut(auth)
             .then(() => {
-                //  toast
                 navigate("/login");
             })
-            .catch((error: unknown) => {
-                console.log(error);
-                //  toast
+            .catch(() => {
+                toast.error("Something went wrong", { position: "bottom-left" });
             });
     }
 
@@ -27,28 +28,51 @@ const Header = () => {
     const routePaint: string = currentUser ? "/canvas" : "/login";
 
     return (
-        <header className='header_wrapper'>
-            <nav className='header_left'>
+        <Box
+            component='header'
+            sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "12px 300px",
+                minHeight: "60px",
+                backgroundColor: "rgba(195, 192, 192, 0.76)",
+            }}
+        >
+            <ToastContainer />
+            <Stack
+                direction='row'
+                spacing={2}
+                component={"nav"}
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                }}
+            >
                 <NavLink to={routeHome}>
                     <HomeIcon sx={{ fontSize: 40 }} color='primary' />
                 </NavLink>
                 {currentUser && (
-                    <NavLink to={routePaint}>
-                        <BrushIcon sx={{ fontSize: 40 }} color='primary' />
-                    </NavLink>
+                    <>
+                        <NavLink to={routePaint}>
+                            <BrushIcon sx={{ fontSize: 40 }} color='primary' />
+                        </NavLink>
+                        <Box>{currentUser && <span>{currentUser.email}</span>}</Box>
+                    </>
                 )}
-            </nav>
-            <div className='header_right'>
-                <div>{currentUser && <span>{currentUser.email}</span>}</div>
-                <div>
-                    {currentUser && (
-                        <span onClick={handleLogout}>
-                            <LogoutIcon sx={{ fontSize: 36 }} color='primary' />
-                        </span>
-                    )}
-                </div>
-            </div>
-        </header>
+            </Stack>
+            <Box
+                component='nav'
+                sx={{ display: "flex", justifyContent: "flex-end", flexGrow: "1" }}
+            >
+                {currentUser && (
+                    <Box onClick={handleLogout} sx={{ cursor: "pointer" }}>
+                        <LogoutIcon sx={{ fontSize: 36 }} color='primary' />
+                    </Box>
+                )}
+            </Box>
+        </Box>
     );
 };
 
