@@ -7,11 +7,14 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint-fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "preview": "vite preview",
     "prepare": "husky install"
   },
   "dependencies": {
     "@fontsource/roboto": "^5.0.13",
+    "@hookform/resolvers": "^3.3.4",
+    "@mui/icons-material": "^5.15.15",
     "@mui/material": "^5.15.15",
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
     "firebase": "^10.11.0",
@@ -19,7 +22,8 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.51.3",
     "react-router-dom": "^6.23.0",
-    "styled-components": "^6.1.8"
+    "react-toastify": "^10.0.5",
+    "zod": "^3.23.4"
   },
   "devDependencies": {
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
@@ -37,7 +41,6 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
-    "react-toastify": "^10.0.5",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   },
