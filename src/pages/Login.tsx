@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { AuthError, signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 import { auth } from "../../firebase.ts";
 import { Box, Button, Link } from "@mui/material";
 import { toast } from "react-toastify";
@@ -10,6 +11,7 @@ import FormTextField from "../components/FormTextField.tsx";
 import Form from "../components/Form.tsx";
 import Container from "@mui/material/Container";
 import CircularProgress from "@mui/material/CircularProgress";
+import handleFirebaseError from "../helpers/handleFirebaseError.ts";
 
 const schema = z.object({
     email: z.string().email("This is not a valid email"),
@@ -33,14 +35,11 @@ const Login = () => {
             const authUser = await signInWithEmailAndPassword(auth, data.email, data.password);
             if (typeof authUser === "object" && authUser.user && authUser.user.email) {
                 toast.success("Success!");
-                navigate("/", { state: { email: authUser.user.email } });
+                navigate("/");
             }
         } catch (error: unknown) {
-            const authError = error as AuthError;
-            if (authError && authError.code === "auth/invalid-credential") {
-                toast.error("Invalid Credentials");
-            } else {
-                toast.error("Something went wrong");
+            if (error instanceof FirebaseError) {
+                toast.error(handleFirebaseError(error));
             }
         } finally {
             setSubmitting(false);

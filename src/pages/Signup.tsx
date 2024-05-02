@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { z } from "zod";
-import { createUserWithEmailAndPassword, AuthError } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 import { toast } from "react-toastify";
 import Form from "../components/Form.tsx";
 import FormTextField from "../components/FormTextField.tsx";
 import { auth } from "../../firebase.ts";
+import handleFirebaseError from "../helpers/handleFirebaseError.ts";
 import { Box, Button, Link } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import Container from "@mui/material/Container";
@@ -47,11 +49,8 @@ const Signup = () => {
                 navigate("/");
             }
         } catch (error: unknown) {
-            const authError = error as AuthError;
-            if (authError && authError.code === "auth/email-already-in-use") {
-                toast.error("This email is already in use");
-            } else {
-                toast.error("Something went wrong");
+            if (error instanceof FirebaseError) {
+                toast.error(handleFirebaseError(error));
             }
         } finally {
             setSubmitting(false);
