@@ -1,21 +1,11 @@
 import { useFormContext } from "react-hook-form";
-import { TextField } from "@mui/material";
+import { TextField, TextFieldProps } from "@mui/material";
 
-interface FormInputProps {
+interface FormInputProps extends Omit<TextFieldProps, "error" | "helperText" | "value"> {
     name: string;
-    label: string;
-    type: string;
-    margin?: "none" | "dense" | "normal";
-    variant?: "outlined" | "filled" | "standard";
 }
 
-const FormTextField = ({
-    name,
-    label,
-    type,
-    margin = "normal",
-    variant = "outlined",
-}: FormInputProps) => {
+const FormTextField = ({ name, ...props }: FormInputProps) => {
     const {
         register,
         formState: { errors },
@@ -27,12 +17,9 @@ const FormTextField = ({
     return (
         <TextField
             {...register(name)}
-            label={label}
+            {...props}
             error={!!errors[name]}
             helperText={helperText}
-            type={type}
-            variant={variant}
-            margin={margin}
             fullWidth
         />
     );

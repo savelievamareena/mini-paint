@@ -23,9 +23,7 @@ const Form = <T extends FieldValues>({
 
     return (
         <FormProvider {...formMethods}>
-            <form onSubmit={formMethods.handleSubmit(onSubmit)} className={"form_component"}>
-                {children}
-            </form>
+            <form onSubmit={formMethods.handleSubmit(onSubmit)}>{children}</form>
         </FormProvider>
     );
 };

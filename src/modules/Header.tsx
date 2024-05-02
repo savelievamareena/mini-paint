@@ -17,15 +17,13 @@ const Header = () => {
     function handleLogout() {
         signOut(auth)
             .then(() => {
+                toast.info("Logged out");
                 navigate("/login");
             })
             .catch(() => {
-                toast.error("Something went wrong", { position: "bottom-left" });
+                toast.error("Something went wrong");
             });
     }
-
-    const routeHome: string = currentUser ? "/" : "/login";
-    const routePaint: string = currentUser ? "/canvas" : "/login";
 
     return (
         <Box
@@ -40,7 +38,7 @@ const Header = () => {
                 backgroundColor: "rgba(195, 192, 192, 0.76)",
             }}
         >
-            <ToastContainer />
+            <ToastContainer position='bottom-left' autoClose={3000} />
             <Stack
                 direction='row'
                 spacing={2}
@@ -50,12 +48,12 @@ const Header = () => {
                     alignItems: "center",
                 }}
             >
-                <NavLink to={routeHome}>
+                <NavLink to={"/"}>
                     <HomeIcon sx={{ fontSize: 40 }} color='primary' />
                 </NavLink>
                 {currentUser && (
                     <>
-                        <NavLink to={routePaint}>
+                        <NavLink to={"/canvas"}>
                             <BrushIcon sx={{ fontSize: 40 }} color='primary' />
                         </NavLink>
                         <Box>{currentUser && <span>{currentUser.email}</span>}</Box>

@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { z } from "zod";
-import { auth } from "../../firebase.ts";
 import { createUserWithEmailAndPassword, AuthError } from "firebase/auth";
 import { toast } from "react-toastify";
 import Form from "../components/Form.tsx";
 import FormTextField from "../components/FormTextField.tsx";
-import Container from "@mui/material/Container";
+import { auth } from "../../firebase.ts";
 import { Box, Button, Link } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
+import Container from "@mui/material/Container";
 
 type FormValues = z.infer<typeof schema>;
 
@@ -34,33 +36,38 @@ const defaultValues: FormValues = {
 
 const Signup = () => {
     const navigate = useNavigate();
+    const [submitting, setSubmitting] = useState(false);
 
     const onSubmit = async (data: FormValues) => {
+        setSubmitting(false);
         try {
             const authUser = await createUserWithEmailAndPassword(auth, data.email, data.password);
             if (typeof authUser === "object" && authUser.user && authUser.user.email) {
-                toast.success("Success!", { position: "bottom-left" });
-                navigate("/", { state: { email: authUser.user.email } });
+                toast.success("Success!");
+                navigate("/");
             }
         } catch (error: unknown) {
             const authError = error as AuthError;
             if (authError && authError.code === "auth/email-already-in-use") {
-                toast.error("This email is already in use", { position: "bottom-left" });
+                toast.error("This email is already in use");
             } else {
-                toast.error("Something went wrong", { position: "bottom-left" });
+                toast.error("Something went wrong");
             }
+        } finally {
+            setSubmitting(false);
         }
     };
 
     return (
         <Container sx={{ mt: "200px", width: "450px" }}>
             <Form schema={schema} defaultValues={defaultValues} onSubmit={onSubmit}>
-                <FormTextField name='email' label='Email' type='text' />
-                <FormTextField name='password' label='Password' type='password' />
+                <FormTextField name='email' label='Email' type='text' margin='normal' />
+                <FormTextField name='password' label='Password' type='password' margin='normal' />
                 <FormTextField
                     name='passwordConfirm'
                     label='Password Confirmation'
                     type='password'
+                    margin='normal'
                 />
                 <Button
                     type='submit'
@@ -68,9 +75,10 @@ const Signup = () => {
                     color='primary'
                     size='large'
                     sx={{ mt: "20px" }}
+                    disabled={submitting}
                     fullWidth
                 >
-                    Sign Up
+                    {submitting ? <CircularProgress size={26} /> : "Sign Up"}
                 </Button>
             </Form>
 

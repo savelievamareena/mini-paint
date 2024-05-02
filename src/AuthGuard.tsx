@@ -1,9 +1,9 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./context/AuthContext.tsx";
 
-const ProtectedRoutes = () => {
+const AuthGuard = () => {
     const { currentUser } = useAuth();
     return currentUser ? <Outlet /> : <Navigate to='/login' replace />;
 };
 
-export default ProtectedRoutes;
+export default AuthGuard;

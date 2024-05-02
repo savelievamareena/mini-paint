@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { StyledEngineProvider } from "@mui/material/styles";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./modules/Layout.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -8,7 +7,7 @@ import Homepage from "./pages/Homepage.tsx";
 import Login from "./pages/Login.tsx";
 import Canvas from "./pages/Canvas.tsx";
 import Signup from "./pages/Signup.tsx";
-import ProtectedRoutes from "./ProtectedRoutes.tsx";
+import AuthGuard from "./AuthGuard.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import "../index.css";
 
@@ -26,7 +25,7 @@ const router = createBrowserRouter([
                 element: <Signup />,
             },
             {
-                element: <ProtectedRoutes />,
+                element: <AuthGuard />,
                 children: [
                     {
                         path: "/",
@@ -48,10 +47,8 @@ const root = ReactDOM.createRoot(rootElement);
 
 root.render(
     <React.StrictMode>
-        <StyledEngineProvider injectFirst>
-            <AuthProvider>
-                <RouterProvider router={router} />
-            </AuthProvider>
-        </StyledEngineProvider>
+        <AuthProvider>
+            <RouterProvider router={router} />
+        </AuthProvider>
     </React.StrictMode>,
 );

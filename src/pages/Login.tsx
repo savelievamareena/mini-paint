@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { AuthError, signInWithEmailAndPassword } from "firebase/auth";
@@ -8,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import FormTextField from "../components/FormTextField.tsx";
 import Form from "../components/Form.tsx";
 import Container from "@mui/material/Container";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const schema = z.object({
     email: z.string().email("This is not a valid email"),
@@ -23,20 +25,25 @@ const defaultValues: FormValues = {
 
 const Login = () => {
     const navigate = useNavigate();
+    const [submitting, setSubmitting] = useState(false);
 
     const onSubmit = async (data: FormValues) => {
+        setSubmitting(true);
         try {
             const authUser = await signInWithEmailAndPassword(auth, data.email, data.password);
             if (typeof authUser === "object" && authUser.user && authUser.user.email) {
+                toast.success("Success!");
                 navigate("/", { state: { email: authUser.user.email } });
             }
         } catch (error: unknown) {
             const authError = error as AuthError;
             if (authError && authError.code === "auth/invalid-credential") {
-                toast.error("Invalid Credentials", { position: "bottom-left" });
+                toast.error("Invalid Credentials");
             } else {
-                toast.error("Something went wrong", { position: "bottom-left" });
+                toast.error("Something went wrong");
             }
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -51,17 +58,18 @@ const Login = () => {
             }}
         >
             <Form schema={schema} defaultValues={defaultValues} onSubmit={onSubmit}>
-                <FormTextField name='email' label='Email' type='text' />
-                <FormTextField name='password' label='Password' type='password' />
+                <FormTextField name='email' label='Email' type='text' margin='normal' />
+                <FormTextField name='password' label='Password' type='password' margin='normal' />
                 <Button
                     type='submit'
                     variant='contained'
                     color='primary'
                     size='large'
                     sx={{ mt: "20px" }}
+                    disabled={submitting}
                     fullWidth
                 >
-                    Log In
+                    {submitting ? <CircularProgress size={26} /> : "Log In"}
                 </Button>
             </Form>
 
