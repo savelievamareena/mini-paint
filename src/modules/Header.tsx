@@ -53,7 +53,7 @@ const Header = () => {
                 </NavLink>
                 {currentUser && (
                     <>
-                        <NavLink to={"/canvas"}>
+                        <NavLink to={"/paint"}>
                             <BrushIcon sx={{ fontSize: 40 }} color='primary' />
                         </NavLink>
                         <Box>{currentUser && <span>{currentUser.email}</span>}</Box>

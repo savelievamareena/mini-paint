@@ -5,7 +5,7 @@ import Layout from "./modules/Layout.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Homepage from "./pages/Homepage.tsx";
 import Login from "./pages/Login.tsx";
-import Canvas from "./pages/Canvas.tsx";
+import Paint from "./pages/Paint.tsx";
 import Signup from "./pages/Signup.tsx";
 import AuthGuard from "./AuthGuard.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
@@ -32,8 +32,8 @@ const router = createBrowserRouter([
                         element: <Homepage />,
                     },
                     {
-                        path: "/canvas",
-                        element: <Canvas />,
+                        path: "/paint",
+                        element: <Paint />,
                     },
                 ],
             },
