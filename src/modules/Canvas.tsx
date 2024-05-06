@@ -1,10 +1,18 @@
 import { HexColorPicker } from "react-colorful";
 import React, { useEffect, useRef, useState } from "react";
+import { ref } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
+import { storage, uploadBytes, db } from "../../firebase.ts";
 import { Box, Button } from "@mui/material";
 import Container from "@mui/material/Container";
+import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext.tsx";
 
 export const Canvas = () => {
+    const { currentUser } = useAuth();
+
     const [color, setColor] = useState("#aabbcc");
+    const [imageSaved, setImageSaved] = useState(false);
     // const [lineCap, setLineCap] = useState<CanvasLineCap>("round");
     // const [lineWidth, setLineWidth] = useState(3);
     const [isDrawing, setIsDrawing] = useState(false);
@@ -26,6 +34,7 @@ export const Canvas = () => {
     }, [color]);
 
     function startDrawing(event: React.MouseEvent<HTMLCanvasElement>) {
+        setImageSaved(false);
         const { offsetX, offsetY } = event.nativeEvent;
         if (contextRef && contextRef.current) {
             contextRef.current.beginPath();
@@ -64,7 +73,47 @@ export const Canvas = () => {
             const context = canvas.getContext("2d");
             if (context) {
                 context.clearRect(0, 0, canvas.width, canvas.height);
+                setImageSaved(false);
             }
+        }
+    }
+
+    function saveCanvas() {
+        if (canvasRef && !imageSaved) {
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
+            canvas.toBlob(function (blob) {
+                if (!blob) return;
+
+                const creationDate = Date.now();
+                const uuid = creationDate.toString(36);
+                const imagesRef = ref(storage, uuid);
+
+                uploadBytes(imagesRef, blob)
+                    .then(() => {
+                        const imageUrl = URL.createObjectURL(blob);
+                        const dbRecord = {
+                            user: currentUser?.email,
+                            userId: currentUser?.uid,
+                            url: imageUrl,
+                            createdAt: creationDate,
+                        };
+
+                        setDoc(doc(db, "pics", uuid), dbRecord)
+                            .then(() => {
+                                setImageSaved(true);
+                                URL.revokeObjectURL(imageUrl);
+                                toast.success("Image uploaded to DB!");
+                            })
+                            .catch(() => {
+                                toast.error("Upload to the DB failed!");
+                            });
+                    })
+                    .catch(() => {
+                        toast.error("Upload to the storage failed!");
+                    });
+            });
         }
     }
 
@@ -85,7 +134,9 @@ export const Canvas = () => {
                     gap: "10px",
                 }}
             >
-                <Button variant={"outlined"}>Save</Button>
+                <Button variant={"outlined"} onClick={saveCanvas} disabled={imageSaved}>
+                    Save
+                </Button>
                 <Button variant={"outlined"} onClick={clearCanvas}>
                     Clear
                 </Button>
