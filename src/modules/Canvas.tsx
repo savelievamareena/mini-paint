@@ -58,6 +58,16 @@ export const Canvas = () => {
         }
     }
 
+    function clearCanvas() {
+        const canvas = canvasRef.current;
+        if (canvas) {
+            const context = canvas.getContext("2d");
+            if (context) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+    }
+
     return (
         <Container
             sx={{
@@ -76,7 +86,9 @@ export const Canvas = () => {
                 }}
             >
                 <Button variant={"outlined"}>Save</Button>
-                <Button variant={"outlined"}>Clear</Button>
+                <Button variant={"outlined"} onClick={clearCanvas}>
+                    Clear
+                </Button>
             </Box>
             <canvas
                 style={{
