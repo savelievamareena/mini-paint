@@ -1,16 +1,16 @@
-import { HexColorPicker } from "react-colorful";
 import React, { useEffect, useRef, useState } from "react";
-import { ref } from "firebase/storage";
-import { doc, setDoc } from "firebase/firestore";
-import { storage, uploadBytes, db } from "../../firebase.ts";
-import { Box, Button, Slider } from "@mui/material";
-// import CropSquare from "@mui/icons-material/CropSquare";
-import BrushOutlinedIcon from "@mui/icons-material/BrushOutlined";
-// import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
-// import ChangeHistoryRoundedIcon from "@mui/icons-material/ChangeHistoryRounded";
-import Container from "@mui/material/Container";
+import { v4 as uuidv4 } from "uuid";
+import { HexColorPicker } from "react-colorful";
 import { toast } from "react-toastify";
+import { ref, uploadBytes } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext.tsx";
+import { storage, db } from "../../firebase.ts";
+import { Box, Button, Slider } from "@mui/material";
+import Container from "@mui/material/Container";
+import CropSquare from "@mui/icons-material/CropSquare";
+import BrushOutlinedIcon from "@mui/icons-material/BrushOutlined";
+import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 
 type DrawMode = "regular" | "line" | "square";
 
@@ -31,27 +31,37 @@ const boxStyleRow = {
 export const Canvas = () => {
     const { currentUser } = useAuth();
 
-    const [color, setColor] = useState("#BF2020");
+    const [isDrawing, setIsDrawing] = useState(false);
     const [imageSaved, setImageSaved] = useState(true);
+
+    const [color, setColor] = useState("#BF2020");
     const [drawMode, setDrawMode] = useState<DrawMode>("regular");
     const [lineWidth, setLineWidth] = useState(15);
-    const [isDrawing, setIsDrawing] = useState(false);
+    const [snapshot, setSnapshot] = useState<string | undefined>("");
+    const [imageId, setImageId] = useState("");
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
+    const startXRef = useRef<number>(0);
+    const startYRef = useRef<number>(0);
 
     useEffect(() => {
-        if (canvasRef && canvasRef.current) {
-            const canvas = canvasRef.current;
-            const context = canvas.getContext("2d");
-            if (context) {
-                context.lineCap = "round";
-                context.strokeStyle = color;
-                context.lineWidth = lineWidth;
-                contextRef.current = context;
-            }
+        if (!canvasRef.current) return;
+
+        const canvas = canvasRef.current;
+        const context = canvas.getContext("2d");
+        if (context) {
+            context.lineCap = "round";
+            context.lineJoin = "round";
+            context.strokeStyle = color;
+            context.lineWidth = lineWidth;
+            contextRef.current = context;
         }
     }, [color, lineWidth]);
+
+    useEffect(() => {
+        setImageId(uuidv4());
+    }, []);
 
     const handleSliderChange = (_: React.SyntheticEvent | Event, newValue: number | number[]) => {
         if (typeof newValue === "number") {
@@ -59,89 +69,87 @@ export const Canvas = () => {
         }
     };
 
-    // const startXRef = useRef<number>(0);
-    // const startYRef = useRef<number>(0);
-
     function startDrawing(event: React.MouseEvent<HTMLCanvasElement>) {
         setImageSaved(false);
+
         const { offsetX, offsetY } = event.nativeEvent;
+        startXRef.current = offsetX;
+        startYRef.current = offsetY;
+
         if (contextRef && contextRef.current) {
             contextRef.current.beginPath();
             contextRef.current.moveTo(offsetX, offsetY);
             contextRef.current.lineTo(offsetX, offsetY);
             contextRef.current.stroke();
-            // startXRef.current = offsetX;
-            // startYRef.current = offsetY;
+            setSnapshot(canvasRef.current?.toDataURL());
             setIsDrawing(true);
-            event.nativeEvent.preventDefault();
         }
     }
 
     function draw(event: React.MouseEvent<HTMLCanvasElement>) {
         if (!isDrawing) return;
-
         const { offsetX, offsetY } = event.nativeEvent;
 
         if (contextRef && contextRef.current) {
-            switch (drawMode) {
-                case "regular":
-                    contextRef.current.lineTo(offsetX, offsetY);
-                    contextRef.current.stroke();
-                    break;
-                // case "line":
-                //     if (canvasRef && canvasRef.current) {
-                //         contextRef.current.clearRect(
-                //             0,
-                //             0,
-                //             canvasRef.current.width,
-                //             canvasRef.current.height,
-                //         );
-                //         contextRef.current.beginPath();
-                //         contextRef.current.moveTo(startXRef, startYRef);
-                //         contextRef.current.lineTo(offsetX, offsetY);
-                //         contextRef.current.stroke();
-                //     }
-                //     break;
-                // case "square":
-                //     if (canvasRef && canvasRef.current) {
-                //         contextRef.current.clearRect(
-                //             0,
-                //             0,
-                //             canvasRef.current.width,
-                //             canvasRef.current.height,
-                //         );
-                //         contextRef.current.beginPath();
-                //         contextRef.current.rect(
-                //             startXRef,
-                //             startYRef,
-                //             offsetX - startXRef,
-                //             offsetY - startYRef,
-                //         );
-                //         contextRef.current.stroke();
-                //     }
-                //     break;
+            if (drawMode === "regular") {
+                contextRef.current.lineTo(offsetX, offsetY);
+                contextRef.current.stroke();
+                return;
             }
-            event.nativeEvent.preventDefault();
+
+            const img = new Image();
+            if (!snapshot) return;
+
+            img.src = snapshot;
+            img.onload = () => {
+                if (!canvasRef.current) return;
+
+                clearCanvas();
+                contextRef.current?.drawImage(
+                    img,
+                    0,
+                    0,
+                    canvasRef.current.width,
+                    canvasRef.current.height,
+                );
+                contextRef.current?.beginPath();
+                setImageSaved(false);
+
+                switch (drawMode) {
+                    case "line":
+                        contextRef.current?.moveTo(startXRef.current, startYRef.current);
+                        contextRef.current?.lineTo(offsetX, offsetY);
+                        break;
+                    case "square":
+                        contextRef.current?.rect(
+                            startXRef.current,
+                            startYRef.current,
+                            offsetX - startXRef.current,
+                            offsetY - startYRef.current,
+                        );
+                        break;
+                }
+                contextRef.current?.stroke();
+            };
         }
     }
 
     function endDrawing() {
-        if (contextRef && contextRef.current) {
-            contextRef.current.closePath();
-            setIsDrawing(false);
-        }
+        setIsDrawing(false);
     }
 
     function clearCanvas() {
         setImageSaved(false);
-        const canvas = canvasRef.current;
-        if (canvas) {
-            const context = canvas.getContext("2d");
-            if (context) {
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                setImageSaved(true);
-            }
+        if (contextRef.current && canvasRef.current) {
+            contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            setImageSaved(true);
         }
+    }
+
+    function handleClearCanvas() {
+        clearCanvas();
+        const newImageId = uuidv4();
+        setImageId(newImageId);
     }
 
     function handleModeClick(mode: DrawMode) {
@@ -149,44 +157,43 @@ export const Canvas = () => {
     }
 
     function saveCanvas() {
+        if (imageSaved || !canvasRef) return;
+
         setImageSaved(true);
-        if (canvasRef && !imageSaved) {
-            const canvas = canvasRef.current;
-            if (!canvas) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-            canvas.toBlob(function (blob) {
-                if (!blob) return;
+        canvas.toBlob(function (blob) {
+            if (!blob) return;
 
-                const creationDate = Date.now();
-                const uuid = creationDate.toString(36);
-                const imagesRef = ref(storage, uuid);
+            const creationDate = Date.now();
+            const imagesRef = ref(storage, imageId);
 
-                uploadBytes(imagesRef, blob)
-                    .then(() => {
-                        const imageUrl = URL.createObjectURL(blob);
-                        const dbRecord = {
-                            user: currentUser?.email,
-                            userId: currentUser?.uid,
-                            url: imageUrl,
-                            createdAt: creationDate,
-                        };
+            uploadBytes(imagesRef, blob)
+                .then(() => {
+                    const imageUrl = URL.createObjectURL(blob);
+                    const dbRecord = {
+                        user: currentUser?.email,
+                        userId: currentUser?.uid,
+                        url: imageUrl,
+                        createdAt: creationDate,
+                    };
 
-                        setDoc(doc(db, "pics", uuid), dbRecord)
-                            .then(() => {
-                                URL.revokeObjectURL(imageUrl);
-                                toast.success("Image uploaded to DB!");
-                            })
-                            .catch(() => {
-                                toast.error("Upload to the DB failed!");
-                                setImageSaved(false);
-                            });
-                    })
-                    .catch(() => {
-                        toast.error("Upload to the storage failed!");
-                        setImageSaved(false);
-                    });
-            });
-        }
+                    setDoc(doc(db, "pics", imageId), dbRecord)
+                        .then(() => {
+                            URL.revokeObjectURL(imageUrl);
+                            toast.success("Image uploaded to DB!");
+                        })
+                        .catch(() => {
+                            toast.error("Upload to the DB failed!");
+                            setImageSaved(false);
+                        });
+                })
+                .catch(() => {
+                    toast.error("Upload to the storage failed!");
+                    setImageSaved(false);
+                });
+        });
     }
 
     return (
@@ -200,10 +207,11 @@ export const Canvas = () => {
             }}
         >
             <Box sx={boxStyleColumn}>
+                <h3>{drawMode}</h3>
                 <Button variant={"outlined"} onClick={saveCanvas} disabled={imageSaved}>
                     Save
                 </Button>
-                <Button variant={"outlined"} onClick={clearCanvas}>
+                <Button variant={"outlined"} onClick={handleClearCanvas}>
                     Clear
                 </Button>
             </Box>
@@ -257,27 +265,20 @@ export const Canvas = () => {
                             handleModeClick("regular");
                         }}
                     />
-                    {/*<ArrowOutwardIcon*/}
-                    {/*    color='primary'*/}
-                    {/*    sx={{ fontSize: 40, cursor: "pointer" }}*/}
-                    {/*    onCLick={() => {*/}
-                    {/*        handleModeClick("line");*/}
-                    {/*    }}*/}
-                    {/*/>*/}
-                    {/*<CropSquare*/}
-                    {/*    color='primary'*/}
-                    {/*    sx={{ fontSize: 40, cursor: "pointer" }}*/}
-                    {/*    onCLick={() => {*/}
-                    {/*        handleModeClick("square");*/}
-                    {/*    }}*/}
-                    {/*/>*/}
-                    {/*<ChangeHistoryRoundedIcon*/}
-                    {/*    color='primary'*/}
-                    {/*    sx={{ fontSize: 40, cursor: "pointer" }}*/}
-                    {/*    onCLick={() => {*/}
-                    {/*        handleModeCLick("triangle");*/}
-                    {/*    }}*/}
-                    {/*/>*/}
+                    <ArrowOutwardIcon
+                        color='primary'
+                        sx={{ fontSize: 40, cursor: "pointer" }}
+                        onClick={() => {
+                            handleModeClick("line");
+                        }}
+                    />
+                    <CropSquare
+                        color='primary'
+                        sx={{ fontSize: 40, cursor: "pointer" }}
+                        onClick={() => {
+                            handleModeClick("square");
+                        }}
+                    />
                 </Box>
             </Box>
         </Container>
