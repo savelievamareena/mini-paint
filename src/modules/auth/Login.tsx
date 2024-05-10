@@ -1,17 +1,16 @@
 import { useState } from "react";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { FirebaseError } from "firebase/app";
-import { auth } from "../../firebase.ts";
-import { Box, Button, Link } from "@mui/material";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import FormTextField from "../components/FormTextField/FormTextField.tsx";
-import { Form } from "../components/Form";
-import { Container, CircularProgress } from "@mui/material";
-import handleFirebaseError from "../helpers/handleFirebaseError.ts";
-import { ROUTES } from "../constants/router.ts";
+import { Link as RouterLink } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../firebase.ts";
+import { ROUTES } from "../../constants/router.ts";
+import { FirebaseError } from "firebase/app";
+import handleFirebaseError from "./helpers/handleFirebaseError.ts";
+import { Box, Button, CircularProgress, Container, Link } from "@mui/material";
+import { Form } from "./components/Form";
+import { FormTextField } from "./components/FormTextField";
+import { AuthProps } from "./auth.types.ts";
 
 const schema = z.object({
     email: z.string().email("This is not a valid email"),
@@ -25,10 +24,8 @@ const defaultValues: FormValues = {
     password: "",
 };
 
-const Login = () => {
-    const navigate = useNavigate();
+const Login = ({ navigate }: AuthProps) => {
     const [submitting, setSubmitting] = useState(false);
-
     const onSubmit = async (data: FormValues) => {
         setSubmitting(true);
         try {

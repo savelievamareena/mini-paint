@@ -1,7 +1,7 @@
 import { HexColorPicker } from "react-colorful";
-import { DrawingToolsProps } from "./DrawingTools.types.ts";
+import { DrawingToolsProps } from "../../Paint.types.ts";
 import { Box, Slider } from "@mui/material";
-import { BrushOutlinedIcon, ArrowOutwardIcon, CropSquare } from "../../material";
+import { BrushOutlinedIcon, ArrowOutwardIcon, CropSquare } from "@material";
 import {
     drawingToolsWrapperStyles,
     sliderBoxStyles,

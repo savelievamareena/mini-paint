@@ -1,15 +1,16 @@
-import { useState } from "react";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { toast } from "react-toastify";
 import { z } from "zod";
+import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import handleFirebaseError from "../helpers/handleFirebaseError.ts";
+import { auth } from "../../../firebase.ts";
+import { toast } from "react-toastify";
+import { ROUTES } from "../../constants/router.ts";
 import { FirebaseError } from "firebase/app";
-import { auth } from "../../firebase.ts";
-import { Form } from "../components/Form";
-import FormTextField from "../components/FormTextField/FormTextField.tsx";
-import { ROUTES } from "../constants/router.ts";
-import { Box, Button, Link, Container, CircularProgress } from "@mui/material";
+import handleFirebaseError from "./helpers/handleFirebaseError.ts";
+import { Box, Button, CircularProgress, Container, Link } from "@mui/material";
+import { Form } from "./components/Form";
+import FormTextField from "./components/FormTextField/FormTextField.tsx";
+import { Link as RouterLink } from "react-router-dom";
+import { AuthProps } from "./auth.types.ts";
 
 type FormValues = z.infer<typeof schema>;
 
@@ -35,8 +36,7 @@ const defaultValues: FormValues = {
     passwordConfirm: "",
 };
 
-const Signup = () => {
-    const navigate = useNavigate();
+const Signup = ({ navigate }: AuthProps) => {
     const [submitting, setSubmitting] = useState(false);
 
     const onSubmit = async (data: FormValues) => {

@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useAuth } from "../../context/AuthContext.tsx";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
 import { ref } from "firebase/storage";
-import { useAuth } from "../context/AuthContext.tsx";
-import { storage } from "../../firebase.ts";
+import { storage } from "../../../firebase.ts";
+import saveImageToStorage from "./helpers/saveImageToStorage.ts";
+import DrawingTools from "./components/DrawingTools/DrawingTools.tsx";
+import { Canvas } from "./components/Canvas";
 import { Box, Button, Container } from "@mui/material";
-import saveImageToStorage from "../helpers/saveImageToStorage.ts";
-import Canvas from "../modules/Canvas/Canvas.tsx";
-import DrawingTools from "../components/DrawingTools/DrawingTools.tsx";
-import { DrawMode } from "../../types.ts";
+import { DrawMode } from "./Paint.types.ts";
 
 const Paint = () => {
     const { currentUser } = useAuth();
@@ -165,7 +165,6 @@ const Paint = () => {
             }
         });
     }
-
     return (
         <Container
             sx={{

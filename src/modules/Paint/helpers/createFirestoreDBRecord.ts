@@ -1,5 +1,5 @@
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../../firebase.ts";
+import { db } from "../../../../firebase.ts";
 import { toast } from "react-toastify";
 
 interface DbRecordTypes {
