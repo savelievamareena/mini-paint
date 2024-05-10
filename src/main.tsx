@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Layout from "./modules/Layout.tsx";
+import Layout from "./modules/layout/Layout.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Homepage from "./pages/Homepage.tsx";
 import Login from "./pages/Login.tsx";
@@ -9,6 +9,7 @@ import Paint from "./pages/Paint.tsx";
 import Signup from "./pages/Signup.tsx";
 import AuthGuard from "./AuthGuard.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
+import { ROUTES } from "./constants/router.ts";
 import "../index.css";
 
 const router = createBrowserRouter([
@@ -17,22 +18,22 @@ const router = createBrowserRouter([
         errorElement: <NotFound />,
         children: [
             {
-                path: "/login",
+                path: ROUTES.LOGIN,
                 element: <Login />,
             },
             {
-                path: "/signup",
+                path: ROUTES.SIGNUP,
                 element: <Signup />,
             },
             {
                 element: <AuthGuard />,
                 children: [
                     {
-                        path: "/",
+                        path: ROUTES.HOME,
                         element: <Homepage />,
                     },
                     {
-                        path: "/paint",
+                        path: ROUTES.PAINT,
                         element: <Paint />,
                     },
                 ],

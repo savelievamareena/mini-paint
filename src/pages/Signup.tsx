@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { toast } from "react-toastify";
 import { z } from "zod";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { FirebaseError } from "firebase/app";
-import { toast } from "react-toastify";
-import Form from "../components/Form.tsx";
-import FormTextField from "../components/FormTextField.tsx";
-import { auth } from "../../firebase.ts";
 import handleFirebaseError from "../helpers/handleFirebaseError.ts";
-import { Box, Button, Link } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
-import Container from "@mui/material/Container";
+import { FirebaseError } from "firebase/app";
+import { auth } from "../../firebase.ts";
+import { Form } from "../components/Form";
+import FormTextField from "../components/FormTextField/FormTextField.tsx";
+import { ROUTES } from "../constants/router.ts";
+import { Box, Button, Link, Container, CircularProgress } from "@mui/material";
 
 type FormValues = z.infer<typeof schema>;
 
@@ -46,7 +45,7 @@ const Signup = () => {
             const authUser = await createUserWithEmailAndPassword(auth, data.email, data.password);
             if (typeof authUser === "object" && authUser.user && authUser.user.email) {
                 toast.success("Success!");
-                navigate("/");
+                navigate(ROUTES.HOME);
             }
         } catch (error: unknown) {
             if (error instanceof FirebaseError) {
@@ -82,7 +81,7 @@ const Signup = () => {
             </Form>
 
             <Box sx={{ textAlign: "center", m: "20px auto 10px" }}>Already have an account?</Box>
-            <Link to='/login' underline='none' component={RouterLink}>
+            <Link to={ROUTES.LOGIN} underline='none' component={RouterLink}>
                 <Button type='submit' variant='outlined' color='primary' size='large' fullWidth>
                     Log in
                 </Button>

@@ -4,11 +4,10 @@ import { toast } from "react-toastify";
 import { ref } from "firebase/storage";
 import { useAuth } from "../context/AuthContext.tsx";
 import { storage } from "../../firebase.ts";
-import { Box, Button } from "@mui/material";
-import Container from "@mui/material/Container";
+import { Box, Button, Container } from "@mui/material";
 import saveImageToStorage from "../helpers/saveImageToStorage.ts";
-import Canvas from "../modules/Canvas.tsx";
-import DrawingTools from "../components/DrawingTools.tsx";
+import Canvas from "../modules/Canvas/Canvas.tsx";
+import DrawingTools from "../components/DrawingTools/DrawingTools.tsx";
 import { DrawMode } from "../../types.ts";
 
 const Paint = () => {
@@ -21,7 +20,7 @@ const Paint = () => {
     const [drawMode, setDrawMode] = useState<DrawMode>("brush");
     const [lineWidth, setLineWidth] = useState(15);
     const [snapshot, setSnapshot] = useState<string | undefined>("");
-    const [imageId, setImageId] = useState("");
+    const [imageId, setImageId] = useState(uuidv4());
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -41,10 +40,6 @@ const Paint = () => {
             contextRef.current = context;
         }
     }, [color, lineWidth]);
-
-    useEffect(() => {
-        setImageId(uuidv4());
-    }, []);
 
     const handleSliderChange = (_: React.SyntheticEvent | Event, newValue: number | number[]) => {
         if (typeof newValue === "number") {
@@ -150,8 +145,8 @@ const Paint = () => {
             if (!blob) return;
             const imagesRef = ref(storage, imageId);
 
-            saveImageToStorage(imagesRef, blob, currentUser, imageId)
-                .then((result) => {
+            try {
+                saveImageToStorage(imagesRef, blob, currentUser, imageId).then((result) => {
                     if (result) {
                         setImageSaved(true);
                         toast.success("Image uploaded successfully!");
@@ -159,11 +154,15 @@ const Paint = () => {
                         setImageSaved(false);
                         toast.error("Failed to save record.");
                     }
-                })
-                .catch((error) => {
+                });
+            } catch (error: unknown) {
+                if (error instanceof Error) {
                     setImageSaved(false);
                     toast.error(error.message);
-                });
+                } else {
+                    toast.error("An unknown error occurred");
+                }
+            }
         });
     }
 

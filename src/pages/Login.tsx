@@ -7,11 +7,11 @@ import { auth } from "../../firebase.ts";
 import { Box, Button, Link } from "@mui/material";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import FormTextField from "../components/FormTextField.tsx";
-import Form from "../components/Form.tsx";
-import Container from "@mui/material/Container";
-import CircularProgress from "@mui/material/CircularProgress";
+import FormTextField from "../components/FormTextField/FormTextField.tsx";
+import { Form } from "../components/Form";
+import { Container, CircularProgress } from "@mui/material";
 import handleFirebaseError from "../helpers/handleFirebaseError.ts";
+import { ROUTES } from "../constants/router.ts";
 
 const schema = z.object({
     email: z.string().email("This is not a valid email"),
@@ -35,7 +35,7 @@ const Login = () => {
             const authUser = await signInWithEmailAndPassword(auth, data.email, data.password);
             if (typeof authUser === "object" && authUser.user && authUser.user.email) {
                 toast.success("Success!");
-                navigate("/");
+                navigate(ROUTES.HOME);
             }
         } catch (error: unknown) {
             if (error instanceof FirebaseError) {
@@ -73,7 +73,7 @@ const Login = () => {
             </Form>
 
             <Box sx={{ textAlign: "center", m: "20px auto 10px" }}>Don't have an account?</Box>
-            <Link to='/signup' underline='none' component={RouterLink}>
+            <Link to={ROUTES.SIGNUP} underline='none' component={RouterLink}>
                 <Button type='submit' variant='outlined' color='primary' size='large' fullWidth>
                     Sign up
                 </Button>

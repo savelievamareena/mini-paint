@@ -1,14 +1,6 @@
-import React from "react";
-import { FieldValues, FormProvider, useForm, DefaultValues, SubmitHandler } from "react-hook-form";
+import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ZodSchema } from "zod";
-
-interface FormProps<T extends FieldValues> {
-    schema: ZodSchema<T>;
-    onSubmit: SubmitHandler<T>;
-    children: React.ReactNode;
-    defaultValues: DefaultValues<T>;
-}
+import { FormProps } from "./Form.types.ts";
 
 const Form = <T extends FieldValues>({
     schema,

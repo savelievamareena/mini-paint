@@ -1,9 +1,6 @@
 import { useFormContext } from "react-hook-form";
-import { TextField, TextFieldProps } from "@mui/material";
-
-interface FormInputProps extends Omit<TextFieldProps, "error" | "helperText" | "value"> {
-    name: string;
-}
+import { TextField } from "@mui/material";
+import { FormInputProps } from "./FormTextField.types.ts";
 
 const FormTextField = ({ name, ...props }: FormInputProps) => {
     const {

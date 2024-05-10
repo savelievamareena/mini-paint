@@ -1,12 +1,4 @@
-import React from "react";
-
-type CanvasProps = {
-    canvasRef: React.RefObject<HTMLCanvasElement>;
-    startDrawing: (e: React.MouseEvent<HTMLCanvasElement>) => void;
-    draw: (e: React.MouseEvent<HTMLCanvasElement>) => void;
-    endDrawing: (e: React.MouseEvent<HTMLCanvasElement>) => void;
-    color: string;
-};
+import { CanvasProps } from "./Canvas.types.ts";
 
 const Canvas = ({ canvasRef, startDrawing, draw, endDrawing, color }: CanvasProps) => {
     return (
