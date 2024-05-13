@@ -1,35 +1,35 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext.tsx";
-import { v4 as uuidv4 } from "uuid";
-import { toast } from "react-toastify";
-import { ref } from "firebase/storage";
-import { storage } from "../../../firebase.ts";
-import saveImageToStorage from "./helpers/saveImageToStorage.ts";
 import DrawingTools from "./components/DrawingTools/DrawingTools.tsx";
 import { Canvas } from "./components/Canvas";
 import { Box, Button, Container } from "@mui/material";
 import { DrawMode } from "./Paint.types.ts";
 import useCanvas from "./hooks/useCanvas.ts";
+import useDrawing from "./hooks/useDrawing.ts";
+import useImageStorage from "./hooks/useImageStorage.ts";
 
 const Paint = () => {
     const { currentUser } = useAuth();
 
-    const [isDrawing, setIsDrawing] = useState(false);
-    const [imageSaved, setImageSaved] = useState(true);
-
     const [color, setColor] = useState("#BF2020");
-    const [lineWidth, setLineWidth] = useState(15);
-    const [drawMode, setDrawMode] = useState<DrawMode>("brush");
+
+    const {
+        isDrawing,
+        setIsDrawing,
+        drawMode,
+        setDrawMode,
+        lineWidth,
+        setLineWidth,
+        startXRef,
+        startYRef,
+    } = useDrawing();
 
     const { canvasRef, contextRef, snapshot, setSnapshot, clearCanvas } = useCanvas({
         color,
         lineWidth,
     });
 
-    const [imageId, setImageId] = useState(uuidv4());
-
-    const startXRef = useRef<number>(0);
-    const startYRef = useRef<number>(0);
+    const { imageSaved, setImageSaved, saveCanvas, resetImageId } = useImageStorage(currentUser);
 
     const handleSliderChange = (_: React.SyntheticEvent | Event, newValue: number | number[]) => {
         if (typeof newValue === "number") {
@@ -114,45 +114,13 @@ const Paint = () => {
 
     function handleReset() {
         clearCanvasHandler();
-        const newImageId = uuidv4();
-        setImageId(newImageId);
+        resetImageId();
     }
 
     function handleModeClick(mode: DrawMode) {
         setDrawMode(mode);
     }
 
-    function saveCanvas() {
-        if (imageSaved || !canvasRef) return;
-
-        setImageSaved(true);
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        canvas.toBlob(function (blob) {
-            if (!blob) return;
-            const imagesRef = ref(storage, imageId);
-
-            try {
-                saveImageToStorage(imagesRef, blob, currentUser, imageId).then((result) => {
-                    if (result) {
-                        setImageSaved(true);
-                        toast.success("Image uploaded successfully!");
-                    } else {
-                        setImageSaved(false);
-                        toast.error("Failed to save record.");
-                    }
-                });
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    setImageSaved(false);
-                    toast.error(error.message);
-                } else {
-                    toast.error("An unknown error occurred");
-                }
-            }
-        });
-    }
     return (
         <Container
             sx={{
@@ -170,7 +138,13 @@ const Paint = () => {
                     gap: "20px",
                 }}
             >
-                <Button variant={"outlined"} onClick={saveCanvas} disabled={imageSaved}>
+                <Button
+                    variant={"outlined"}
+                    onClick={() => {
+                        saveCanvas(canvasRef);
+                    }}
+                    disabled={imageSaved}
+                >
                     Save
                 </Button>
                 <Button variant={"outlined"} onClick={handleReset}>
