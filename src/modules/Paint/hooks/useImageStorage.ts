@@ -14,15 +14,14 @@ export default function useImageStorage(currentUser: User | null) {
         (canvasRef: RefObject<HTMLCanvasElement>) => {
             if (!canvasRef.current) return;
 
-            const canvas = canvasRef.current;
-            canvas.toBlob(function (blob) {
+            setImageSaved(true);
+            canvasRef.current.toBlob(function (blob) {
                 if (!blob) return;
                 const imagesRef = ref(storage, imageId);
 
                 try {
                     saveImageToStorage(imagesRef, blob, currentUser, imageId).then((result) => {
                         if (result) {
-                            setImageSaved(true);
                             toast.success("Image uploaded successfully!");
                         } else {
                             setImageSaved(false);
