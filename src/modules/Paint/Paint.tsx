@@ -10,7 +10,6 @@ import useImageStorage from "./hooks/useImageStorage.ts";
 
 const Paint = () => {
     const { currentUser } = useAuth();
-
     const [color, setColor] = useState("#BF2020");
 
     const {
@@ -44,62 +43,62 @@ const Paint = () => {
         startXRef.current = offsetX;
         startYRef.current = offsetY;
 
-        if (contextRef && contextRef.current) {
-            contextRef.current.beginPath();
-            contextRef.current.moveTo(offsetX, offsetY);
-            contextRef.current.lineTo(offsetX, offsetY);
-            contextRef.current.stroke();
-            setSnapshot(canvasRef.current?.toDataURL());
-            setIsDrawing(true);
-        }
+        if (!contextRef || !contextRef.current) return;
+
+        contextRef.current.beginPath();
+        contextRef.current.moveTo(offsetX, offsetY);
+        contextRef.current.lineTo(offsetX, offsetY);
+        contextRef.current.stroke();
+        setSnapshot(canvasRef.current?.toDataURL());
+        setIsDrawing(true);
     }
 
     function draw(event: React.MouseEvent<HTMLCanvasElement>) {
         if (!isDrawing) return;
+        if (!contextRef || !contextRef.current) return;
+
         const { offsetX, offsetY } = event.nativeEvent;
 
-        if (contextRef && contextRef.current) {
-            if (drawMode === "brush") {
-                contextRef.current.lineTo(offsetX, offsetY);
-                contextRef.current.stroke();
-                return;
-            }
-
-            const img = new Image();
-            if (!snapshot) return;
-
-            img.src = snapshot;
-            img.onload = () => {
-                if (!canvasRef.current) return;
-
-                clearCanvasHandler();
-                contextRef.current?.drawImage(
-                    img,
-                    0,
-                    0,
-                    canvasRef.current.width,
-                    canvasRef.current.height,
-                );
-                contextRef.current?.beginPath();
-                setImageSaved(false);
-
-                switch (drawMode) {
-                    case "line":
-                        contextRef.current?.moveTo(startXRef.current, startYRef.current);
-                        contextRef.current?.lineTo(offsetX, offsetY);
-                        break;
-                    case "square":
-                        contextRef.current?.rect(
-                            startXRef.current,
-                            startYRef.current,
-                            offsetX - startXRef.current,
-                            offsetY - startYRef.current,
-                        );
-                        break;
-                }
-                contextRef.current?.stroke();
-            };
+        if (drawMode === "brush") {
+            contextRef.current.lineTo(offsetX, offsetY);
+            contextRef.current.stroke();
+            return;
         }
+
+        const img = new Image();
+        if (!snapshot) return;
+
+        img.src = snapshot;
+        img.onload = () => {
+            if (!canvasRef.current) return;
+
+            clearCanvasHandler();
+            contextRef.current?.drawImage(
+                img,
+                0,
+                0,
+                canvasRef.current.width,
+                canvasRef.current.height,
+            );
+            contextRef.current?.beginPath();
+            setImageSaved(false);
+
+            switch (drawMode) {
+                case "line":
+                    contextRef.current?.moveTo(startXRef.current, startYRef.current);
+                    contextRef.current?.lineTo(offsetX, offsetY);
+                    break;
+                case "square":
+                    contextRef.current?.rect(
+                        startXRef.current,
+                        startYRef.current,
+                        offsetX - startXRef.current,
+                        offsetY - startYRef.current,
+                    );
+                    break;
+            }
+            contextRef.current?.stroke();
+        };
     }
 
     function endDrawing() {
