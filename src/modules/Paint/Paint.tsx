@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext.tsx";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
@@ -9,6 +9,7 @@ import DrawingTools from "./components/DrawingTools/DrawingTools.tsx";
 import { Canvas } from "./components/Canvas";
 import { Box, Button, Container } from "@mui/material";
 import { DrawMode } from "./Paint.types.ts";
+import useCanvas from "./hooks/useCanvas.ts";
 
 const Paint = () => {
     const { currentUser } = useAuth();
@@ -17,29 +18,18 @@ const Paint = () => {
     const [imageSaved, setImageSaved] = useState(true);
 
     const [color, setColor] = useState("#BF2020");
-    const [drawMode, setDrawMode] = useState<DrawMode>("brush");
     const [lineWidth, setLineWidth] = useState(15);
-    const [snapshot, setSnapshot] = useState<string | undefined>("");
+    const [drawMode, setDrawMode] = useState<DrawMode>("brush");
+
+    const { canvasRef, contextRef, snapshot, setSnapshot, clearCanvas } = useCanvas({
+        color,
+        lineWidth,
+    });
+
     const [imageId, setImageId] = useState(uuidv4());
 
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const contextRef = useRef<CanvasRenderingContext2D | null>(null);
     const startXRef = useRef<number>(0);
     const startYRef = useRef<number>(0);
-
-    useEffect(() => {
-        if (!canvasRef.current) return;
-
-        const canvas = canvasRef.current;
-        const context = canvas.getContext("2d");
-        if (context) {
-            context.lineCap = "round";
-            context.lineJoin = "round";
-            context.strokeStyle = color;
-            context.lineWidth = lineWidth;
-            contextRef.current = context;
-        }
-    }, [color, lineWidth]);
 
     const handleSliderChange = (_: React.SyntheticEvent | Event, newValue: number | number[]) => {
         if (typeof newValue === "number") {
@@ -82,7 +72,7 @@ const Paint = () => {
             img.onload = () => {
                 if (!canvasRef.current) return;
 
-                clearCanvas();
+                clearCanvasHandler();
                 contextRef.current?.drawImage(
                     img,
                     0,
@@ -116,16 +106,14 @@ const Paint = () => {
         setIsDrawing(false);
     }
 
-    function clearCanvas() {
+    function clearCanvasHandler() {
         setImageSaved(false);
-        if (contextRef.current && canvasRef.current) {
-            contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-            setImageSaved(true);
-        }
+        clearCanvas();
+        setImageSaved(true);
     }
 
-    function handleClearCanvas() {
-        clearCanvas();
+    function handleReset() {
+        clearCanvasHandler();
         const newImageId = uuidv4();
         setImageId(newImageId);
     }
@@ -185,7 +173,7 @@ const Paint = () => {
                 <Button variant={"outlined"} onClick={saveCanvas} disabled={imageSaved}>
                     Save
                 </Button>
-                <Button variant={"outlined"} onClick={handleClearCanvas}>
+                <Button variant={"outlined"} onClick={handleReset}>
                     Clear
                 </Button>
             </Box>

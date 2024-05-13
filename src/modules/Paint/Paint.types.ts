@@ -8,3 +8,8 @@ export type DrawingToolsProps = {
     handleSliderChange: (event: Event, value: number | number[]) => void;
     handleModeClick: (mode: DrawMode) => void;
 };
+
+export type UseCanvasHookTypes = {
+    color: string;
+    lineWidth: number;
+};

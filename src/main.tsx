@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Layout from "./modules/Layout/Layout.tsx";
+import Layout from "./components/Layout/Layout.tsx";
 import NotFoundPage from "./pages/NotFoundPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
