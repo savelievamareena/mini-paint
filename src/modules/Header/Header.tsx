@@ -1,12 +1,10 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { toast, ToastContainer } from "react-toastify";
-import HomeIcon from "@mui/icons-material/Home";
-import LogoutIcon from "@mui/icons-material/Logout";
-import BrushIcon from "@mui/icons-material/Brush";
-import Box from "@mui/material/Box";
-import { Stack } from "@mui/material";
-import { useAuth } from "../context/AuthContext.tsx";
+import { useAuth } from "src/context/AuthContext";
+import { ROUTES } from "src/constants";
+import { Home, Brush, Logout } from "@mui/icons-material";
+import { Stack, Box } from "@mui/material";
 import "react-toastify/dist/ReactToastify.css";
 
 const Header = () => {
@@ -18,7 +16,7 @@ const Header = () => {
         signOut(auth)
             .then(() => {
                 toast.info("Logged out");
-                navigate("/login");
+                navigate(ROUTES.LOGIN);
             })
             .catch(() => {
                 toast.error("Something went wrong");
@@ -48,13 +46,13 @@ const Header = () => {
                     alignItems: "center",
                 }}
             >
-                <NavLink to={"/"}>
-                    <HomeIcon sx={{ fontSize: 40 }} color='primary' />
+                <NavLink to={ROUTES.HOME}>
+                    <Home sx={{ fontSize: 40 }} color='primary' />
                 </NavLink>
                 {currentUser && (
                     <>
-                        <NavLink to={"/canvas"}>
-                            <BrushIcon sx={{ fontSize: 40 }} color='primary' />
+                        <NavLink to={ROUTES.PAINT}>
+                            <Brush sx={{ fontSize: 40 }} color='primary' />
                         </NavLink>
                         <Box>{currentUser && <span>{currentUser.email}</span>}</Box>
                     </>
@@ -66,7 +64,7 @@ const Header = () => {
             >
                 {currentUser && (
                     <Box onClick={handleLogout} sx={{ cursor: "pointer" }}>
-                        <LogoutIcon sx={{ fontSize: 36 }} color='primary' />
+                        <Logout sx={{ fontSize: 36 }} color='primary' />
                     </Box>
                 )}
             </Box>

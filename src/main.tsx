@@ -1,41 +1,50 @@
-import React from "react";
+import React, { lazy } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Layout from "./modules/Layout.tsx";
-import NotFound from "./pages/NotFound.tsx";
-import Homepage from "./pages/Homepage.tsx";
-import Login from "./pages/Login.tsx";
-import Canvas from "./pages/Canvas.tsx";
-import Signup from "./pages/Signup.tsx";
-import AuthGuard from "./AuthGuard.tsx";
-import { AuthProvider } from "./context/AuthContext.tsx";
+import Layout from "./components/Layout/Layout";
+import NotFoundPage from "./pages/NotFoundPage";
+import ErrorPage from "./pages/ErrorPage";
+const HomePage = lazy(() => import("src/pages/HomePage"));
+const LoginPage = lazy(() => import("src/pages/LoginPage"));
+const PaintPage = lazy(() => import("src/pages/PaintPage"));
+const SignupPage = lazy(() => import("src/pages/SignupPage"));
+import AuthGuard from "./AuthGuard";
+import { AuthProvider } from "./context/AuthContext";
+import { ROUTES } from "./constants";
 import "../index.css";
 
 const router = createBrowserRouter([
     {
         element: <Layout />,
-        errorElement: <NotFound />,
         children: [
             {
-                path: "/login",
-                element: <Login />,
+                path: ROUTES.LOGIN,
+                element: <LoginPage />,
+                errorElement: <ErrorPage />,
             },
             {
-                path: "/signup",
-                element: <Signup />,
+                path: ROUTES.SIGNUP,
+                element: <SignupPage />,
+                errorElement: <ErrorPage />,
             },
             {
                 element: <AuthGuard />,
                 children: [
                     {
-                        path: "/",
-                        element: <Homepage />,
+                        path: ROUTES.HOME,
+                        element: <HomePage />,
+                        errorElement: <ErrorPage />,
                     },
                     {
-                        path: "/canvas",
-                        element: <Canvas />,
+                        path: ROUTES.PAINT,
+                        element: <PaintPage />,
+                        errorElement: <ErrorPage />,
                     },
                 ],
+            },
+            {
+                path: "*",
+                element: <NotFoundPage />,
             },
         ],
     },

@@ -3,6 +3,7 @@ interface ImportMetaEnv {
     readonly VITE_DB_API_ID: string;
     readonly VITE_AUTH_DOMAIN: string;
     readonly VITE_MESSAGING_SENDER_ID: string;
+    readonly VITE_STORAGE_BUCKET: string;
 }
 
 interface ImportMeta {

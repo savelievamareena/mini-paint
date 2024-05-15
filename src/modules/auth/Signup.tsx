@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { toast } from "react-toastify";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
-import { toast } from "react-toastify";
-import Form from "../components/Form.tsx";
-import FormTextField from "../components/FormTextField.tsx";
-import { auth } from "../../firebase.ts";
-import handleFirebaseError from "../helpers/handleFirebaseError.ts";
-import { Box, Button, Link } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
-import Container from "@mui/material/Container";
+import { auth } from "firebase";
+import { ROUTES } from "src/constants";
+import handleFirebaseError from "./helpers/handleFirebaseError";
+import { Form } from "./components/Form";
+import FormTextField from "./components/FormTextField/FormTextField";
+import { Box, Button, CircularProgress, Container, Link } from "@mui/material";
 
 type FormValues = z.infer<typeof schema>;
 
@@ -46,7 +45,7 @@ const Signup = () => {
             const authUser = await createUserWithEmailAndPassword(auth, data.email, data.password);
             if (typeof authUser === "object" && authUser.user && authUser.user.email) {
                 toast.success("Success!");
-                navigate("/");
+                navigate(ROUTES.HOME);
             }
         } catch (error: unknown) {
             if (error instanceof FirebaseError) {
@@ -82,7 +81,7 @@ const Signup = () => {
             </Form>
 
             <Box sx={{ textAlign: "center", m: "20px auto 10px" }}>Already have an account?</Box>
-            <Link to='/login' underline='none' component={RouterLink}>
+            <Link to={ROUTES.LOGIN} underline='none' component={RouterLink}>
                 <Button type='submit' variant='outlined' color='primary' size='large' fullWidth>
                     Log in
                 </Button>

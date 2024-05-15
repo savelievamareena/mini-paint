@@ -1,17 +1,15 @@
 import { useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { FirebaseError } from "firebase/app";
-import { auth } from "../../firebase.ts";
-import { Box, Button, Link } from "@mui/material";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import FormTextField from "../components/FormTextField.tsx";
-import Form from "../components/Form.tsx";
-import Container from "@mui/material/Container";
-import CircularProgress from "@mui/material/CircularProgress";
-import handleFirebaseError from "../helpers/handleFirebaseError.ts";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "firebase.ts";
+import { FirebaseError } from "firebase/app";
+import { ROUTES } from "src/constants";
+import handleFirebaseError from "./helpers/handleFirebaseError";
+import { Form } from "./components/Form";
+import { FormTextField } from "./components/FormTextField";
+import { Box, Button, CircularProgress, Container, Link } from "@mui/material";
 
 const schema = z.object({
     email: z.string().email("This is not a valid email"),
@@ -28,14 +26,13 @@ const defaultValues: FormValues = {
 const Login = () => {
     const navigate = useNavigate();
     const [submitting, setSubmitting] = useState(false);
-
     const onSubmit = async (data: FormValues) => {
         setSubmitting(true);
         try {
             const authUser = await signInWithEmailAndPassword(auth, data.email, data.password);
             if (typeof authUser === "object" && authUser.user && authUser.user.email) {
                 toast.success("Success!");
-                navigate("/");
+                navigate(ROUTES.HOME);
             }
         } catch (error: unknown) {
             if (error instanceof FirebaseError) {
@@ -73,7 +70,7 @@ const Login = () => {
             </Form>
 
             <Box sx={{ textAlign: "center", m: "20px auto 10px" }}>Don't have an account?</Box>
-            <Link to='/signup' underline='none' component={RouterLink}>
+            <Link to={ROUTES.SIGNUP} underline='none' component={RouterLink}>
                 <Button type='submit' variant='outlined' color='primary' size='large' fullWidth>
                     Sign up
                 </Button>
