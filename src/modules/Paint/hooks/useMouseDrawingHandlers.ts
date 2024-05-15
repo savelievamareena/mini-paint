@@ -1,13 +1,5 @@
 import React, { useCallback, useRef } from "react";
-import { DrawMode } from "../Paint.types.ts";
-
-interface UseMouseDrawingHandlersProps {
-    canvasRef: React.RefObject<HTMLCanvasElement> | null;
-    contextRef: React.RefObject<CanvasRenderingContext2D> | null;
-    snapshot: string | undefined;
-    drawMode: DrawMode;
-    clearCanvas: () => void;
-}
+import { UseMouseDrawingHandlersProps } from "../Paint.types.ts";
 
 export default function useMouseDrawingHandlers({
     canvasRef,

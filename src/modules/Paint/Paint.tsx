@@ -8,6 +8,7 @@ import useCanvas from "./hooks/useCanvas.ts";
 import useDrawing from "./hooks/useDrawing.ts";
 import useImageStorage from "./hooks/useImageStorage.ts";
 import useMouseDrawingHandlers from "./hooks/useMouseDrawingHandlers.ts";
+import { paintButtonsWrapper, paintWrapper } from "./Paint.styles.ts";
 
 const Paint = () => {
     const { currentUser } = useAuth();
@@ -65,22 +66,8 @@ const Paint = () => {
     }
 
     return (
-        <Container
-            sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                p: "30px",
-                gap: "30px",
-            }}
-        >
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "20px",
-                }}
-            >
+        <Container sx={paintWrapper}>
+            <Box sx={paintButtonsWrapper}>
                 <Button
                     variant={"outlined"}
                     onClick={() => {

@@ -1,3 +1,5 @@
+import React from "react";
+
 export type DrawMode = "brush" | "line" | "square";
 
 export type DrawingToolsProps = {
@@ -12,4 +14,12 @@ export type DrawingToolsProps = {
 export type UseCanvasHookTypes = {
     color: string;
     lineWidth: number;
+};
+
+export type UseMouseDrawingHandlersProps = {
+    canvasRef: React.RefObject<HTMLCanvasElement> | null;
+    contextRef: React.RefObject<CanvasRenderingContext2D> | null;
+    snapshot: string | undefined;
+    drawMode: DrawMode;
+    clearCanvas: () => void;
 };

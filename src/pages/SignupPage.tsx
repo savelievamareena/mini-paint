@@ -1,13 +1,7 @@
-import { Suspense, lazy } from "react";
-import { Loading } from "../components/Loading";
-const Signup = lazy(() => import("../modules/auth/Signup"));
+import { Signup } from "../modules/auth";
 
 const SignupPage = () => {
-    return (
-        <Suspense fallback={<Loading />}>
-            <Signup />
-        </Suspense>
-    );
+    return <Signup />;
 };
 
 export default SignupPage;

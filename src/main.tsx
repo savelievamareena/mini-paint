@@ -1,17 +1,17 @@
-import React from "react";
+import React, { lazy } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
 import NotFoundPage from "./pages/NotFoundPage";
 import ErrorPage from "./pages/ErrorPage";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import PaintPage from "./pages/PaintPage";
-import SignupPage from "./pages/SignupPage";
+const HomePage = lazy(() => import("src/pages/HomePage"));
+const LoginPage = lazy(() => import("src/pages/LoginPage"));
+const PaintPage = lazy(() => import("src/pages/PaintPage"));
+const SignupPage = lazy(() => import("src/pages/SignupPage"));
 import AuthGuard from "./AuthGuard";
 import { AuthProvider } from "./context/AuthContext";
-import "../index.css";
 import { ROUTES } from "./constants";
+import "../index.css";
 
 const router = createBrowserRouter([
     {
