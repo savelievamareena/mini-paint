@@ -1,5 +1,12 @@
+import { Container } from "@mui/material";
+
 const NotFoundPage = () => {
-    return <div>404</div>;
+    return (
+        <Container>
+            <h1>404</h1>
+            <p>Page not found</p>
+        </Container>
+    );
 };
 
 export default NotFoundPage;

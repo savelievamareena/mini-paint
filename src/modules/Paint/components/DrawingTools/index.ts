@@ -1,1 +1,1 @@
-export { default as DrawingTools } from "./DrawingTools.tsx";
+export { default as DrawingTools } from "./DrawingTools";

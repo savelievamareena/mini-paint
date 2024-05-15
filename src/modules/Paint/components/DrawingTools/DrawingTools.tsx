@@ -1,7 +1,7 @@
 import { HexColorPicker } from "react-colorful";
-import { DrawingToolsProps } from "../../Paint.types.ts";
+import { DrawingToolsProps } from "../../Paint.types";
 import { Box, Slider } from "@mui/material";
-import { BrushOutlinedIcon, ArrowOutwardIcon, CropSquare } from "@material";
+import { CropSquare, ArrowOutward, BrushOutlined } from "@mui/icons-material";
 import {
     drawingToolsWrapperStyles,
     sliderBoxStyles,
@@ -44,14 +44,14 @@ const DrawingTools = ({
             </Box>
             <Box sx={toolsSelectionBoxStyles}>
                 <h3>Mode: {drawMode}</h3>
-                <BrushOutlinedIcon
+                <BrushOutlined
                     color='primary'
                     sx={toolsSelectionButtonStyles}
                     onClick={() => {
                         handleModeClick("brush");
                     }}
                 />
-                <ArrowOutwardIcon
+                <ArrowOutward
                     color='primary'
                     sx={toolsSelectionButtonStyles}
                     onClick={() => {

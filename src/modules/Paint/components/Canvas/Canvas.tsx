@@ -1,4 +1,4 @@
-import { CanvasProps } from "./Canvas.types.ts";
+import { CanvasProps } from "./Canvas.types";
 
 const Canvas = ({ canvasRef, startDrawing, draw, endDrawing, color }: CanvasProps) => {
     return (

@@ -1,5 +1,5 @@
 import { uploadBytes, StorageReference } from "firebase/storage";
-import createFirestoreDBRecord from "./createFirestoreDBRecord.ts";
+import createFirestoreDBRecord from "./createFirestoreDBRecord";
 import { User } from "firebase/auth";
 
 export default function saveImageToStorage(

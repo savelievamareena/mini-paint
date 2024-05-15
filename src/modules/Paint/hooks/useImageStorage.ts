@@ -1,10 +1,10 @@
 import { useCallback, useState, RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { ref } from "firebase/storage";
-import { toast } from "react-toastify";
-import saveImageToStorage from "../helpers/saveImageToStorage.ts";
 import { User } from "firebase/auth";
-import { storage } from "../../../../firebase.ts";
+import { storage } from "firebase";
+import { toast } from "react-toastify";
+import saveImageToStorage from "../helpers/saveImageToStorage";
 
 export default function useImageStorage(currentUser: User | null) {
     const [imageSaved, setImageSaved] = useState(true);

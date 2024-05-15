@@ -1,1 +1,1 @@
-export { default as FormTextField } from "./FormTextField.tsx";
+export { default as FormTextField } from "./FormTextField";

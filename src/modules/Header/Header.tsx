@@ -1,9 +1,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { toast, ToastContainer } from "react-toastify";
-import { useAuth } from "../../context/AuthContext.tsx";
-import { ROUTES } from "../../constants/router.ts";
-import { HomeIcon, LogoutIcon, BrushIcon } from "../../material";
+import { useAuth } from "src/context/AuthContext";
+import { ROUTES } from "src/constants";
+import { Home, Brush, Logout } from "@mui/icons-material";
 import { Stack, Box } from "@mui/material";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -47,12 +47,12 @@ const Header = () => {
                 }}
             >
                 <NavLink to={ROUTES.HOME}>
-                    <HomeIcon sx={{ fontSize: 40 }} color='primary' />
+                    <Home sx={{ fontSize: 40 }} color='primary' />
                 </NavLink>
                 {currentUser && (
                     <>
                         <NavLink to={ROUTES.PAINT}>
-                            <BrushIcon sx={{ fontSize: 40 }} color='primary' />
+                            <Brush sx={{ fontSize: 40 }} color='primary' />
                         </NavLink>
                         <Box>{currentUser && <span>{currentUser.email}</span>}</Box>
                     </>
@@ -64,7 +64,7 @@ const Header = () => {
             >
                 {currentUser && (
                     <Box onClick={handleLogout} sx={{ cursor: "pointer" }}>
-                        <LogoutIcon sx={{ fontSize: 36 }} color='primary' />
+                        <Logout sx={{ fontSize: 36 }} color='primary' />
                     </Box>
                 )}
             </Box>

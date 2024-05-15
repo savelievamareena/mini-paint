@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from "react";
-import { type UseCanvasHookTypes } from "../Paint.types.ts";
+import { type UseCanvasHookTypes } from "../Paint.types";
 
 export default function useCanvas({ color, lineWidth }: UseCanvasHookTypes) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);

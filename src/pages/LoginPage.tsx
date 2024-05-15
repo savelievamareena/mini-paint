@@ -1,9 +1,13 @@
-import { useNavigate } from "react-router-dom";
-import { Login } from "../modules/auth";
+import { Suspense, lazy } from "react";
+import { Loading } from "../components/Loading";
+const Login = lazy(() => import("../modules/auth/Login"));
 
 const LoginPage = () => {
-    const navigate = useNavigate();
-    return <Login navigate={navigate} />;
+    return (
+        <Suspense fallback={<Loading />}>
+            <Login />
+        </Suspense>
+    );
 };
 
 export default LoginPage;

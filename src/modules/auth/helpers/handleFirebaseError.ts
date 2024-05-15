@@ -1,5 +1,5 @@
 import { FirebaseError } from "firebase/app";
-import { FIREBASE_ERRORS } from "../constants/firebaseErrors.ts";
+import { FIREBASE_ERRORS } from "../constants/firebaseErrors";
 
 export default function handleFirebaseError(error: FirebaseError): string {
     let errorMessage = "Something went wrong";

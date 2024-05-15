@@ -1,29 +1,31 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Layout from "./components/Layout/Layout.tsx";
-import NotFoundPage from "./pages/NotFoundPage.tsx";
-import HomePage from "./pages/HomePage.tsx";
-import LoginPage from "./pages/LoginPage.tsx";
-import PaintPage from "./pages/PaintPage.tsx";
-import SignupPage from "./pages/SignupPage.tsx";
-import AuthGuard from "./AuthGuard.tsx";
-import { AuthProvider } from "./context/AuthContext.tsx";
-import { ROUTES } from "./constants/router.ts";
+import Layout from "./components/Layout/Layout";
+import NotFoundPage from "./pages/NotFoundPage";
+import ErrorPage from "./pages/ErrorPage";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import PaintPage from "./pages/PaintPage";
+import SignupPage from "./pages/SignupPage";
+import AuthGuard from "./AuthGuard";
+import { AuthProvider } from "./context/AuthContext";
 import "../index.css";
+import { ROUTES } from "./constants";
 
 const router = createBrowserRouter([
     {
         element: <Layout />,
-        errorElement: <NotFoundPage />,
         children: [
             {
                 path: ROUTES.LOGIN,
                 element: <LoginPage />,
+                errorElement: <ErrorPage />,
             },
             {
                 path: ROUTES.SIGNUP,
                 element: <SignupPage />,
+                errorElement: <ErrorPage />,
             },
             {
                 element: <AuthGuard />,
@@ -31,12 +33,18 @@ const router = createBrowserRouter([
                     {
                         path: ROUTES.HOME,
                         element: <HomePage />,
+                        errorElement: <ErrorPage />,
                     },
                     {
                         path: ROUTES.PAINT,
                         element: <PaintPage />,
+                        errorElement: <ErrorPage />,
                     },
                 ],
+            },
+            {
+                path: "*",
+                element: <NotFoundPage />,
             },
         ],
     },

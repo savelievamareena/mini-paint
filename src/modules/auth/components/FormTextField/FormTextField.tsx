@@ -1,6 +1,6 @@
 import { useFormContext } from "react-hook-form";
+import { FormInputProps } from "./FormTextField.types";
 import { TextField } from "@mui/material";
-import { FormInputProps } from "./FormTextField.types.ts";
 
 const FormTextField = ({ name, ...props }: FormInputProps) => {
     const {

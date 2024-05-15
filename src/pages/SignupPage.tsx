@@ -1,9 +1,13 @@
-import { useNavigate } from "react-router-dom";
-import { Signup } from "../modules/auth";
+import { Suspense, lazy } from "react";
+import { Loading } from "../components/Loading";
+const Signup = lazy(() => import("../modules/auth/Signup"));
 
 const SignupPage = () => {
-    const navigate = useNavigate();
-    return <Signup navigate={navigate} />;
+    return (
+        <Suspense fallback={<Loading />}>
+            <Signup />
+        </Suspense>
+    );
 };
 
 export default SignupPage;

@@ -1,6 +1,6 @@
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProps } from "./Form.types.ts";
+import { FormProps } from "./Form.types";
 
 const Form = <T extends FieldValues>({
     schema,

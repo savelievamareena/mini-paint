@@ -1,1 +1,1 @@
-export { default as Paint } from "./Paint";
+export { default } from "./Paint";
