@@ -8,6 +8,7 @@ import {
     getDocs,
     query,
     where,
+    orderBy,
 } from "firebase/firestore";
 import { db } from "firebase.ts";
 import { useAuth } from "../../context/AuthContext.tsx";
@@ -27,7 +28,7 @@ const Home = () => {
 
     useEffect(() => {
         (async () => {
-            const collectionRef = collection(db, "pics");
+            const collectionRef = query(collection(db, "pics"), orderBy("createdAt", "desc"));
             try {
                 const snapshot = await getDocs(collectionRef);
 
@@ -49,7 +50,7 @@ const Home = () => {
     async function handleSelectChange(event: SelectChangeEvent<string>) {
         setSelectedEmailId(event.target.value);
 
-        const collectionRef = collection(db, "pics");
+        const collectionRef = query(collection(db, "pics"), orderBy("createdAt", "desc"));
         let queryRef;
 
         if (event.target.value === "-1") {
@@ -64,7 +65,25 @@ const Home = () => {
             const docs = getPicsFromDb(snapshot);
             setPicturesData(docs);
         } catch (error: unknown) {
-            toast.error("Error fetching documents");
+            if (error instanceof Error) {
+                switch (error.code) {
+                    case "permission-denied":
+                        console.error("You do not have permission to read these documents.");
+                        toast.error("Permission denied. Cannot fetch documents.");
+                        break;
+                    case "failed-precondition":
+                        console.error("Make sure the Firestore indexes are set up correctly.");
+                        toast.error("Failed precondition. Check Firestore indexes.");
+                        break;
+                    default:
+                        console.error("An unexpected error occurred:", error);
+                        toast.error("An unexpected error occurred while fetching documents.");
+                        break;
+                }
+            } else {
+                console.error("An unknown error occurred:", error);
+                toast.error("An unknown error occurred while fetching documents.");
+            }
         }
     }
 
@@ -97,7 +116,7 @@ const Home = () => {
                 raised
                 sx={{
                     width: 240,
-                    margin: "0 auto",
+                    margin: "0",
                 }}
             >
                 <CardHeader
@@ -106,11 +125,12 @@ const Home = () => {
                             {data.userEmail === currentUser!.email ? (
                                 <DeleteForeverOutlinedIcon onClick={() => handleDelete(id)} />
                             ) : (
-                                <div style={{ width: "64px" }} />
+                                <div />
                             )}
                         </IconButton>
                     }
-                    title={"_"}
+                    title={""}
+                    sx={{ maxHeight: "14px" }}
                 />
                 <CardMedia
                     component='img'
