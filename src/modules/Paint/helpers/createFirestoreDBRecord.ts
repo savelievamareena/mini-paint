@@ -12,8 +12,7 @@ export default function createFirestoreDBRecord(
         .then(() => {
             return true;
         })
-        .catch((error) => {
-            console.error(error);
+        .catch(() => {
             toast.error("Upload to the DB failed!");
             return false;
         });

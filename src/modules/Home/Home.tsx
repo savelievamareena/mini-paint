@@ -1,23 +1,15 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import {
-    collection,
-    deleteDoc,
-    doc,
-    DocumentData,
-    getDocs,
-    query,
-    where,
-    orderBy,
-} from "firebase/firestore";
+import { collection, DocumentData, getDocs, query, where, orderBy } from "firebase/firestore";
 import { db } from "firebase.ts";
 import { useAuth } from "../../context/AuthContext.tsx";
 import getPicsFromDb from "./helpers/getPicsFromDb.ts";
-import { IconButton, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { Card, CardHeader, CardMedia, CardContent, Container, Box } from "@mui/material";
-import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import { MenuItem, Modal, Select, SelectChangeEvent } from "@mui/material";
+import { Container, Box } from "@mui/material";
 import { retrieveEmailsFromPicData } from "./helpers/retrieveEmailsFromPicData.ts";
-import { cardElementsWrapper, cardsContainer, select } from "./Home.styles.ts";
+import { cardElementsWrapper, cardsContainer, select, modal } from "./Home.styles.ts";
+import { useModalHandlers, usePictureDelete } from "../Home/hooks";
+import { PictureCard } from "./components/PictureCard";
 
 const Home = () => {
     const { currentUser } = useAuth();
@@ -25,6 +17,9 @@ const Home = () => {
     const [picturesData, setPicturesData] = useState<DocumentData[] | undefined>([]);
     const [usersEmails, setUsersEmails] = useState<string[]>([]);
     const [selectedEmailId, setSelectedEmailId] = useState("-1");
+
+    const { handleModalOpen, handleModalClose, picToShow, modalOpen } = useModalHandlers();
+    const { handleDelete } = usePictureDelete(setPicturesData);
 
     useEffect(() => {
         (async () => {
@@ -66,38 +61,10 @@ const Home = () => {
             setPicturesData(docs);
         } catch (error: unknown) {
             if (error instanceof Error) {
-                switch (error.code) {
-                    case "permission-denied":
-                        console.error("You do not have permission to read these documents.");
-                        toast.error("Permission denied. Cannot fetch documents.");
-                        break;
-                    case "failed-precondition":
-                        console.error("Make sure the Firestore indexes are set up correctly.");
-                        toast.error("Failed precondition. Check Firestore indexes.");
-                        break;
-                    default:
-                        console.error("An unexpected error occurred:", error);
-                        toast.error("An unexpected error occurred while fetching documents.");
-                        break;
-                }
+                toast.error(`An error occurred: ${error.message}`);
             } else {
-                console.error("An unknown error occurred:", error);
-                toast.error("An unknown error occurred while fetching documents.");
+                toast.error("An unknown error occurred.");
             }
-        }
-    }
-
-    async function handleDelete(id: string) {
-        const docRef = doc(db, "pics", id);
-        try {
-            await deleteDoc(docRef);
-            setPicturesData((prevState) => {
-                if (prevState !== undefined) {
-                    return prevState.filter((image) => image.id !== id);
-                }
-            });
-        } catch {
-            toast.error("Could not delete the image");
         }
     }
 
@@ -111,35 +78,13 @@ const Home = () => {
 
     const cardElements = picturesData!.map(({ data, id }) => {
         return (
-            <Card
-                key={id}
-                raised
-                sx={{
-                    width: 240,
-                    margin: "0",
-                }}
-            >
-                <CardHeader
-                    action={
-                        <IconButton aria-label='settings'>
-                            {data.userEmail === currentUser!.email ? (
-                                <DeleteForeverOutlinedIcon onClick={() => handleDelete(id)} />
-                            ) : (
-                                <div />
-                            )}
-                        </IconButton>
-                    }
-                    title={""}
-                    sx={{ maxHeight: "14px" }}
-                />
-                <CardMedia
-                    component='img'
-                    height='240'
-                    width='240'
-                    image={`https://firebasestorage.googleapis.com/v0/b/paint-43c73.appspot.com/o/${id}?alt=media`}
-                />
-                <CardContent>{data.userEmail}</CardContent>
-            </Card>
+            <PictureCard
+                data={data}
+                id={id}
+                currentUser={currentUser}
+                handleDelete={handleDelete}
+                handleModalOpen={handleModalOpen}
+            />
         );
     });
 
@@ -150,6 +95,15 @@ const Home = () => {
                 {menuItems}
             </Select>
             <Box sx={cardElementsWrapper}>{cardElements}</Box>
+
+            <Modal open={modalOpen} onClose={handleModalClose}>
+                <Box
+                    component='img'
+                    sx={modal}
+                    alt={usersEmails[Number(selectedEmailId)]}
+                    src={picToShow}
+                />
+            </Modal>
         </Container>
     );
 };
