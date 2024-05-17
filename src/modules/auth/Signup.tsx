@@ -3,13 +3,12 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { toast } from "react-toastify";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { FirebaseError } from "firebase/app";
 import { auth } from "firebase";
 import { ROUTES } from "src/constants";
-import handleFirebaseError from "./helpers/handleFirebaseError";
 import { Form } from "./components/Form";
 import FormTextField from "./components/FormTextField/FormTextField";
 import { Box, Button, CircularProgress, Container, Link } from "@mui/material";
+import handleDbErrors from "../../helpers/handleDbError.ts";
 
 type FormValues = z.infer<typeof schema>;
 
@@ -48,9 +47,7 @@ const Signup = () => {
                 navigate(ROUTES.HOME);
             }
         } catch (error: unknown) {
-            if (error instanceof FirebaseError) {
-                toast.error(handleFirebaseError(error));
-            }
+            handleDbErrors(error);
         } finally {
             setSubmitting(false);
         }

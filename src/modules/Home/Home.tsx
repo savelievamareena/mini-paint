@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { collection, DocumentData, getDocs, query, where, orderBy } from "firebase/firestore";
 import { db } from "firebase.ts";
-import { useAuth } from "../../context/AuthContext.tsx";
-import getPicsFromDb from "./helpers/getPicsFromDb.ts";
-import { MenuItem, Modal, Select, SelectChangeEvent } from "@mui/material";
-import { Container, Box } from "@mui/material";
+import { useAuth } from "../../context/AuthContext";
+import getPicsFromDb from "./helpers/getPicsFromDb";
 import { retrieveEmailsFromPicData } from "./helpers/retrieveEmailsFromPicData.ts";
-import { cardElementsWrapper, cardsContainer, select, modal } from "./Home.styles.ts";
 import { useModalHandlers, usePictureDelete } from "../Home/hooks";
 import { PictureCard } from "./components/PictureCard";
+import handleDbErrors from "src/helpers/handleDbError.ts";
+import { cardElementsWrapper, cardsContainer, select, modal } from "./Home.styles.ts";
+import { MenuItem, Modal, Select, SelectChangeEvent, Container, Box } from "@mui/material";
 
 const Home = () => {
     const { currentUser } = useAuth();
@@ -31,11 +30,7 @@ const Home = () => {
                 setPicturesData(docs);
                 setUsersEmails(retrieveEmailsFromPicData(docs));
             } catch (error: unknown) {
-                if (error instanceof Error) {
-                    toast.error(error.message);
-                } else {
-                    toast.error("Error fetching documents");
-                }
+                handleDbErrors(error);
             }
         })();
 
@@ -60,11 +55,7 @@ const Home = () => {
             const docs = getPicsFromDb(snapshot);
             setPicturesData(docs);
         } catch (error: unknown) {
-            if (error instanceof Error) {
-                toast.error(`An error occurred: ${error.message}`);
-            } else {
-                toast.error("An unknown error occurred.");
-            }
+            handleDbErrors(error);
         }
     }
 

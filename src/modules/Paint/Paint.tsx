@@ -1,14 +1,11 @@
 import React, { useState } from "react";
-import { useAuth } from "../../context/AuthContext.tsx";
-import DrawingTools from "./components/DrawingTools/DrawingTools.tsx";
+import { useAuth } from "src/context/AuthContext";
+import DrawingTools from "./components/DrawingTools/DrawingTools";
 import { Canvas } from "./components/Canvas";
 import { Box, Button, Container } from "@mui/material";
-import { DrawMode } from "./Paint.types.ts";
-import useCanvas from "./hooks/useCanvas.ts";
-import useDrawing from "./hooks/useDrawing.ts";
-import useImageStorage from "./hooks/useImageStorage.ts";
-import useMouseDrawingHandlers from "./hooks/useMouseDrawingHandlers.ts";
-import { paintButtonsWrapper, paintWrapper } from "./Paint.styles.ts";
+import { DrawMode } from "./Paint.types";
+import { useImageStorage, useMouseDrawingHandlers, useCanvas, useDrawing } from "./hooks";
+import { paintButtonsWrapper, paintWrapper } from "./Paint.styles";
 
 const Paint = () => {
     const { currentUser } = useAuth();

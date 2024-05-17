@@ -4,12 +4,11 @@ import { z } from "zod";
 import { toast } from "react-toastify";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "firebase.ts";
-import { FirebaseError } from "firebase/app";
 import { ROUTES } from "src/constants";
-import handleFirebaseError from "./helpers/handleFirebaseError";
 import { Form } from "./components/Form";
 import { FormTextField } from "./components/FormTextField";
 import { Box, Button, CircularProgress, Container, Link } from "@mui/material";
+import handleDbErrors from "src/helpers/handleDbError.ts";
 
 const schema = z.object({
     email: z.string().email("This is not a valid email"),
@@ -35,9 +34,7 @@ const Login = () => {
                 navigate(ROUTES.HOME);
             }
         } catch (error: unknown) {
-            if (error instanceof FirebaseError) {
-                toast.error(handleFirebaseError(error));
-            }
+            handleDbErrors(error);
         } finally {
             setSubmitting(false);
         }
