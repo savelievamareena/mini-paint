@@ -1,10 +1,10 @@
 import { deleteDoc, doc, DocumentData } from "firebase/firestore";
-import { db } from "firebase.ts";
+import { db } from "firebase";
 import { toast } from "react-toastify";
 import { Dispatch, SetStateAction, useCallback } from "react";
 
 export default function usePictureDelete(
-    setPicturesData: Dispatch<SetStateAction<DocumentData[] | undefined>>,
+    setPicturesData: Dispatch<SetStateAction<DocumentData[]>>,
 ) {
     const handleDelete = useCallback(
         async (id: string) => {

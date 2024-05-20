@@ -9,6 +9,8 @@ const PictureCard = ({
     handleDelete,
     handleModalOpen,
 }: PictureCardProps) => {
+    const pictureBasePath = import.meta.env.VITE_PICTURE_PATH;
+
     return (
         <Card
             key={id}
@@ -35,7 +37,7 @@ const PictureCard = ({
                 component='img'
                 height='240'
                 width='240'
-                image={`https://firebasestorage.googleapis.com/v0/b/paint-43c73.appspot.com/o/${id}?alt=media`}
+                image={`${pictureBasePath}${id}?alt=media`}
                 onClick={() => {
                     handleModalOpen(id);
                 }}

@@ -8,7 +8,7 @@ import { ROUTES } from "src/constants";
 import { Form } from "./components/Form";
 import FormTextField from "./components/FormTextField/FormTextField";
 import { Box, Button, CircularProgress, Container, Link } from "@mui/material";
-import handleDbErrors from "../../helpers/handleDbError.ts";
+import handleDbErrors from "../../helpers/handleDbError";
 
 type FormValues = z.infer<typeof schema>;
 

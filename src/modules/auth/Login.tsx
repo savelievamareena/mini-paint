@@ -3,12 +3,12 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { toast } from "react-toastify";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "firebase.ts";
+import { auth } from "firebase";
 import { ROUTES } from "src/constants";
 import { Form } from "./components/Form";
 import { FormTextField } from "./components/FormTextField";
 import { Box, Button, CircularProgress, Container, Link } from "@mui/material";
-import handleDbErrors from "src/helpers/handleDbError.ts";
+import handleDbErrors from "src/helpers/handleDbError";
 
 const schema = z.object({
     email: z.string().email("This is not a valid email"),

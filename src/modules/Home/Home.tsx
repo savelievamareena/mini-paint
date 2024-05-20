@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { collection, DocumentData, getDocs, query, where, orderBy } from "firebase/firestore";
-import { db } from "firebase.ts";
+import { db } from "firebase";
 import { useAuth } from "../../context/AuthContext";
 import getPicsFromDb from "./helpers/getPicsFromDb";
-import { retrieveEmailsFromPicData } from "./helpers/retrieveEmailsFromPicData.ts";
+import { retrieveEmailsFromPicData } from "./helpers/retrieveEmailsFromPicData";
 import { useModalHandlers, usePictureDelete } from "../Home/hooks";
 import { PictureCard } from "./components/PictureCard";
-import handleDbErrors from "src/helpers/handleDbError.ts";
-import { cardElementsWrapper, cardsContainer, select, modal } from "./Home.styles.ts";
+import handleDbErrors from "src/helpers/handleDbError";
+import { cardElementsWrapper, cardsContainer, select, modal } from "./Home.styles";
 import { MenuItem, Modal, Select, SelectChangeEvent, Container, Box } from "@mui/material";
 
 const Home = () => {
     const { currentUser } = useAuth();
 
-    const [picturesData, setPicturesData] = useState<DocumentData[] | undefined>([]);
+    const [picturesData, setPicturesData] = useState<DocumentData[]>([]);
     const [usersEmails, setUsersEmails] = useState<string[]>([]);
     const [selectedEmailId, setSelectedEmailId] = useState("-1");
 
@@ -33,8 +33,6 @@ const Home = () => {
                 handleDbErrors(error);
             }
         })();
-
-        return () => setPicturesData([]);
     }, []);
 
     async function handleSelectChange(event: SelectChangeEvent<string>) {
@@ -59,15 +57,7 @@ const Home = () => {
         }
     }
 
-    const menuItems = usersEmails.map((userEmail, i) => {
-        return (
-            <MenuItem value={userEmail} key={i}>
-                {userEmail}
-            </MenuItem>
-        );
-    });
-
-    const cardElements = picturesData!.map(({ data, id }) => {
+    const cardElements = picturesData.map(({ data, id }) => {
         return (
             <PictureCard
                 data={data}
@@ -83,7 +73,13 @@ const Home = () => {
         <Container sx={cardsContainer}>
             <Select sx={select} value={selectedEmailId} onChange={handleSelectChange}>
                 <MenuItem value={"-1"}>All users</MenuItem>
-                {menuItems}
+                {usersEmails.map((userEmail, i) => {
+                    return (
+                        <MenuItem value={userEmail} key={i}>
+                            {userEmail}
+                        </MenuItem>
+                    );
+                })}
             </Select>
             <Box sx={cardElementsWrapper}>{cardElements}</Box>
 
