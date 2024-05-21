@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useCallback } from "react";
 
 export default function usePictureDelete(
     setPicturesData: Dispatch<SetStateAction<DocumentData[]>>,
+    incrementDeletedCount: () => void,
 ) {
     const handleDelete = useCallback(
         async (id: string) => {
@@ -17,11 +18,12 @@ export default function usePictureDelete(
                     }
                     return prevState;
                 });
+                incrementDeletedCount();
             } catch {
                 toast.error("Could not delete the image");
             }
         },
-        [setPicturesData],
+        [setPicturesData, incrementDeletedCount],
     );
 
     return { handleDelete };

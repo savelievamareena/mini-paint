@@ -28,10 +28,13 @@ const Home = () => {
     const [selectedEmail, setSelectedEmail] = useState("-1");
     const [pagesNumber, setPagesNumber] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
+    const [deletedCount, setDeletedCount] = useState(0);
 
     const { handleModalOpen, handleModalClose, picToShow, modalOpen } = useModalHandlers();
     const getCollectionRef = useCollectionRef(numberOfItemsPerPage, currentPage, selectedEmail);
-    const { handleDelete } = usePictureDelete(setPicturesData);
+
+    const incrementDeletedCount = () => setDeletedCount((prev) => prev + 1);
+    const { handleDelete } = usePictureDelete(setPicturesData, incrementDeletedCount);
 
     useEffect(() => {
         (async () => {
@@ -52,7 +55,7 @@ const Home = () => {
                 setPagesNumber(Math.ceil(totalDocuments / numberOfItemsPerPage));
             }
         })();
-    }, [selectedEmail, numberOfItemsPerPage]);
+    }, [selectedEmail, numberOfItemsPerPage, deletedCount]);
 
     useEffect(() => {
         (async () => {
@@ -65,9 +68,9 @@ const Home = () => {
                 handleDbErrors(error);
             }
         })();
-    }, [currentPage, selectedEmail]);
+    }, [currentPage, selectedEmail, deletedCount]);
 
-    async function handleSelectChange(event: SelectChangeEvent<string>) {
+    async function handleSelectChange(event: SelectChangeEvent) {
         setCurrentPage(1);
         setSelectedEmail(event.target.value);
     }

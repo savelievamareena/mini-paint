@@ -1,12 +1,11 @@
 import { useCallback, useState } from "react";
 
 export default function useModalHandlers() {
+    const basePicUrl = import.meta.env.VITE_PICTURE_PATH;
     const [picToShow, setPicToShow] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const handleModalOpen = useCallback((id: string) => {
-        setPicToShow(
-            `https://firebasestorage.googleapis.com/v0/b/paint-43c73.appspot.com/o/${id}?alt=media`,
-        );
+        setPicToShow(`${basePicUrl}${id}?alt=media`);
         setModalOpen(true);
     }, []);
 
