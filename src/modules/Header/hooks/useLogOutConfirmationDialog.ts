@@ -18,7 +18,7 @@ export default function useLogOutConfirmationDialog() {
         setDialogOpen(false);
     }, []);
 
-    function handleLogout() {
+    const handleLogout = useCallback(() => {
         signOut(auth)
             .then(() => {
                 toast.info("Logged out");
@@ -28,7 +28,7 @@ export default function useLogOutConfirmationDialog() {
                 toast.error("Something went wrong");
             });
         setDialogOpen(false);
-    }
+    }, []);
 
     return { dialogOpen, handleDialogOpen, handleDialogClose, handleLogout };
 }
