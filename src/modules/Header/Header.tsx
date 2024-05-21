@@ -1,27 +1,18 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { getAuth, signOut } from "firebase/auth";
-import { toast, ToastContainer } from "react-toastify";
+import { NavLink } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import { useAuth } from "src/context/AuthContext";
 import { ROUTES } from "src/constants";
+import { ConfirmationDialog } from "src/components/ConfirmationDialog";
+import useLogOutConfirmationDialog from "./hooks/useLogOutConfirmationDialog.ts";
 import { Home, Brush, Logout } from "@mui/icons-material";
-import { Stack, Box } from "@mui/material";
+import { Stack, Box, Button } from "@mui/material";
 import "react-toastify/dist/ReactToastify.css";
 
 const Header = () => {
     const { currentUser } = useAuth();
-    const auth = getAuth();
-    const navigate = useNavigate();
 
-    function handleLogout() {
-        signOut(auth)
-            .then(() => {
-                toast.info("Logged out");
-                navigate(ROUTES.LOGIN);
-            })
-            .catch(() => {
-                toast.error("Something went wrong");
-            });
-    }
+    const { dialogOpen, handleDialogOpen, handleDialogClose, handleLogout } =
+        useLogOutConfirmationDialog();
 
     return (
         <Box
@@ -63,11 +54,24 @@ const Header = () => {
                 sx={{ display: "flex", justifyContent: "flex-end", flexGrow: "1" }}
             >
                 {currentUser && (
-                    <Box onClick={handleLogout} sx={{ cursor: "pointer" }}>
+                    <Box onClick={handleDialogOpen} sx={{ cursor: "pointer" }}>
                         <Logout sx={{ fontSize: 36 }} color='primary' />
                     </Box>
                 )}
             </Box>
+
+            <ConfirmationDialog
+                handleClose={handleDialogClose}
+                open={dialogOpen}
+                title={"Are you sure you want to log out?"}
+            >
+                <Button variant='contained' onClick={handleLogout} sx={{ marginRight: "20px" }}>
+                    YES
+                </Button>
+                <Button variant='outlined' onClick={handleDialogClose}>
+                    NO
+                </Button>
+            </ConfirmationDialog>
         </Box>
     );
 };
