@@ -1,11 +1,19 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { collection, DocumentData, getDocs, orderBy, query, where } from "firebase/firestore";
-import { useAuth } from "../../context/AuthContext";
+import { db } from "firebase";
+import { useAuth } from "src/context/AuthContext";
 import getPicsFromDb from "./helpers/getPicsFromDb";
-import { useModalHandlers, usePictureDelete } from "../Home/hooks";
+import {
+    useModalHandlers,
+    usePictureDelete,
+    useCollectionRef,
+    useDeleteConfirmationDialog,
+} from "../Home/hooks";
 import { PictureCard } from "./components/PictureCard";
 import handleDbErrors from "src/helpers/handleDbError";
+import { retrieveEmailsFromPicData } from "./helpers/retrieveEmailsFromPicData";
 import { cardElementsWrapper, cardsContainer, select, modal } from "./Home.styles";
+import { ConfirmationDialog } from "../../components/ConfirmationDialog";
 import {
     MenuItem,
     Modal,
@@ -14,10 +22,8 @@ import {
     Container,
     Box,
     Pagination,
+    Button,
 } from "@mui/material";
-import useCollectionRef from "./hooks/useCollectionRef";
-import { db } from "firebase";
-import { retrieveEmailsFromPicData } from "./helpers/retrieveEmailsFromPicData";
 
 const Home = () => {
     const { currentUser } = useAuth();
@@ -35,6 +41,9 @@ const Home = () => {
 
     const incrementDeletedCount = () => setDeletedCount((prev) => prev + 1);
     const { handleDelete } = usePictureDelete(setPicturesData, incrementDeletedCount);
+
+    const { dialogOpen, handleDialogOpen, handleDialogClose, handlePictureDelete } =
+        useDeleteConfirmationDialog(handleDelete);
 
     useEffect(() => {
         (async () => {
@@ -86,7 +95,9 @@ const Home = () => {
                 data={data}
                 id={id}
                 currentUser={currentUser}
-                handleDelete={handleDelete}
+                handleDelete={() => {
+                    handleDialogOpen(id);
+                }}
                 handleModalOpen={handleModalOpen}
             />
         );
@@ -116,6 +127,23 @@ const Home = () => {
             <Modal open={modalOpen} onClose={handleModalClose}>
                 <Box component='img' sx={modal} alt={selectedEmail} src={picToShow} />
             </Modal>
+
+            <ConfirmationDialog
+                handleClose={handleDialogClose}
+                open={dialogOpen}
+                title={"Are you sure you want to delete the picture?"}
+            >
+                <Button
+                    variant='contained'
+                    onClick={handlePictureDelete}
+                    sx={{ marginRight: "20px" }}
+                >
+                    YES
+                </Button>
+                <Button variant='outlined' onClick={handleDialogClose}>
+                    NO
+                </Button>
+            </ConfirmationDialog>
         </Container>
     );
 };

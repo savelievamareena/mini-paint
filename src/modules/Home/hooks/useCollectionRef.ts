@@ -2,11 +2,11 @@ import { collection, getDocs, limit, orderBy, query, startAfter, where } from "f
 import { db } from "firebase";
 import { useCallback } from "react";
 
-const useCollectionRef = (
+export default function useCollectionRef(
     numberOfItemsPerPage: number,
     currentPage: number,
     selectedEmail: string | undefined,
-) => {
+) {
     return useCallback(async () => {
         const offset = (currentPage - 1) * numberOfItemsPerPage;
         let baseQuery = query(collection(db, "pics"), orderBy("createdAt", "desc"));
@@ -25,6 +25,4 @@ const useCollectionRef = (
 
         return paginatedQuery;
     }, [numberOfItemsPerPage, currentPage, selectedEmail]);
-};
-
-export default useCollectionRef;
+}
