@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "src/context/AuthContext";
 import DrawingTools from "./components/DrawingTools/DrawingTools";
 import { Canvas } from "./components/Canvas";
@@ -7,9 +7,13 @@ import { DrawMode } from "./Paint.types";
 import { useImageStorage, useMouseDrawingHandlers, useCanvas, useDrawing } from "./hooks";
 import { paintButtonsWrapper, paintWrapper } from "./Paint.styles";
 import { ConfirmationDialog } from "src/components/ConfirmationDialog";
-import useClearConfirmationDialog from "./hooks/useClearConfirmationDialog.ts";
+import useClearConfirmationDialog from "./hooks/useClearConfirmationDialog";
+import { useParams } from "react-router-dom";
+import { db } from "firebase";
+import fetchImageForEdit from "./helpers/fetchImageForEdit";
 
 const Paint = () => {
+    const { id } = useParams();
     const { currentUser } = useAuth();
     const [color, setColor] = useState("#BF2020");
 
@@ -22,7 +26,7 @@ const Paint = () => {
     });
 
     const { isSaveButtonDisabled, setSaveButtonDisabled, saveCanvas, resetImageId } =
-        useImageStorage(currentUser);
+        useImageStorage(currentUser, id);
 
     const { startDrawingHandler, drawHandler } = useMouseDrawingHandlers({
         canvasRef,
@@ -33,7 +37,15 @@ const Paint = () => {
     });
 
     const { dialogOpen, handleDialogOpen, handleDialogClose, handleReset } =
-        useClearConfirmationDialog(clearCanvasHandler, resetImageId);
+        useClearConfirmationDialog(clearCanvasHandler, resetImageId, id);
+
+    useEffect(() => {
+        if (id) {
+            fetchImageForEdit(id, db, contextRef, canvasRef);
+        } else {
+            clearCanvas();
+        }
+    }, [id, currentUser, db, contextRef, canvasRef]);
 
     const handleSliderChange = (_: React.SyntheticEvent | Event, newValue: number | number[]) => {
         if (typeof newValue === "number") {

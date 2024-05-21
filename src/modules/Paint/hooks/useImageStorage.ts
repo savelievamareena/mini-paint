@@ -5,10 +5,11 @@ import { User } from "firebase/auth";
 import { storage } from "firebase";
 import { toast } from "react-toastify";
 import saveImageToStorage from "../helpers/saveImageToStorage";
+import handleDbErrors from "src/helpers/handleDbError";
 
-export default function useImageStorage(currentUser: User | null) {
+export default function useImageStorage(currentUser: User | null, id: string | undefined) {
     const [isSaveButtonDisabled, setSaveButtonDisabled] = useState(true);
-    const [imageId, setImageId] = useState(uuidv4());
+    const [imageId, setImageId] = useState(id ? id : uuidv4());
 
     const saveCanvas = useCallback(
         (canvasRef: RefObject<HTMLCanvasElement>) => {
@@ -30,15 +31,11 @@ export default function useImageStorage(currentUser: User | null) {
                     });
                 } catch (error: unknown) {
                     setSaveButtonDisabled(false);
-                    if (error instanceof Error) {
-                        toast.error(`An error occurred: ${error.message}`);
-                    } else {
-                        toast.error("An unknown error occurred");
-                    }
+                    handleDbErrors(error);
                 }
             });
         },
-        [currentUser, imageId],
+        [currentUser, imageId, id],
     );
 
     const resetImageId = useCallback(() => {

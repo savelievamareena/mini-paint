@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 export default function useClearConfirmationDialog(
     clearCanvasHandler: () => void,
     resetImageId: () => void,
+    id: string | undefined,
 ) {
     const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -15,8 +16,9 @@ export default function useClearConfirmationDialog(
     }, []);
 
     const handleReset = useCallback(() => {
+        if (!id) resetImageId();
+
         clearCanvasHandler();
-        resetImageId();
         setDialogOpen(false);
     }, []);
 

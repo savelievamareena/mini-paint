@@ -1,6 +1,9 @@
-import { Card, CardContent, CardHeader, CardMedia, IconButton } from "@mui/material";
+import { Box, Card, CardContent, CardHeader, CardMedia, IconButton } from "@mui/material";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import BorderColorIcon from "@mui/icons-material/BorderColor";
 import { type PictureCardProps } from "./PictureCard.types";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "src/constants";
 
 const PictureCard = ({
     data,
@@ -10,6 +13,12 @@ const PictureCard = ({
     handleModalOpen,
 }: PictureCardProps) => {
     const pictureBasePath = import.meta.env.VITE_PICTURE_PATH;
+    const navigate = useNavigate();
+
+    function handleUpdate(id: string) {
+        const editRoute = ROUTES.EDIT.replace(":id", id);
+        navigate(editRoute);
+    }
 
     return (
         <Card
@@ -22,16 +31,37 @@ const PictureCard = ({
         >
             <CardHeader
                 action={
-                    <IconButton aria-label='settings' onClick={() => handleDelete(id)}>
-                        {data.userEmail === currentUser!.email ? (
-                            <DeleteForeverOutlinedIcon />
+                    <Box
+                        display='flex'
+                        alignItems='center'
+                        justifyContent='space-between'
+                        width='100%'
+                    >
+                        {currentUser && data.userEmail === currentUser.email ? (
+                            <>
+                                <Box>
+                                    <IconButton aria-label='edit' onClick={() => handleUpdate(id)}>
+                                        <BorderColorIcon />
+                                    </IconButton>
+                                </Box>
+                                <Box>
+                                    <IconButton
+                                        aria-label='delete'
+                                        onClick={() => handleDelete(id)}
+                                    >
+                                        <DeleteForeverOutlinedIcon />
+                                    </IconButton>
+                                </Box>
+                            </>
                         ) : (
-                            <div />
+                            <div
+                                style={{
+                                    minHeight: "40px",
+                                }}
+                            />
                         )}
-                    </IconButton>
+                    </Box>
                 }
-                title={""}
-                sx={{ maxHeight: "14px" }}
             />
             <CardMedia
                 component='img'
