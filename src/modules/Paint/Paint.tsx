@@ -1,16 +1,19 @@
-import React, { useState } from "react";
-import { useAuth } from "../../context/AuthContext.tsx";
-import DrawingTools from "./components/DrawingTools/DrawingTools.tsx";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "src/context/AuthContext";
+import DrawingTools from "./components/DrawingTools/DrawingTools";
 import { Canvas } from "./components/Canvas";
 import { Box, Button, Container } from "@mui/material";
-import { DrawMode } from "./Paint.types.ts";
-import useCanvas from "./hooks/useCanvas.ts";
-import useDrawing from "./hooks/useDrawing.ts";
-import useImageStorage from "./hooks/useImageStorage.ts";
-import useMouseDrawingHandlers from "./hooks/useMouseDrawingHandlers.ts";
-import { paintButtonsWrapper, paintWrapper } from "./Paint.styles.ts";
+import { DrawMode } from "./Paint.types";
+import { useImageStorage, useMouseDrawingHandlers, useCanvas, useDrawing } from "./hooks";
+import { paintButtonsWrapper, paintWrapper } from "./Paint.styles";
+import { ConfirmationDialog } from "src/components/ConfirmationDialog";
+import useClearConfirmationDialog from "./hooks/useClearConfirmationDialog";
+import { useParams } from "react-router-dom";
+import { db } from "firebase";
+import fetchImageForEdit from "./helpers/fetchImageForEdit";
 
 const Paint = () => {
+    const { id } = useParams();
     const { currentUser } = useAuth();
     const [color, setColor] = useState("#BF2020");
 
@@ -22,7 +25,8 @@ const Paint = () => {
         lineWidth,
     });
 
-    const { imageSaved, setImageSaved, saveCanvas, resetImageId } = useImageStorage(currentUser);
+    const { isSaveButtonDisabled, setSaveButtonDisabled, saveCanvas, resetImageId } =
+        useImageStorage(currentUser, id);
 
     const { startDrawingHandler, drawHandler } = useMouseDrawingHandlers({
         canvasRef,
@@ -32,6 +36,17 @@ const Paint = () => {
         snapshot,
     });
 
+    const { dialogOpen, handleDialogOpen, handleDialogClose, handleReset } =
+        useClearConfirmationDialog(clearCanvasHandler, resetImageId, id);
+
+    useEffect(() => {
+        if (id) {
+            fetchImageForEdit(id, db, contextRef, canvasRef);
+        } else {
+            clearCanvas();
+        }
+    }, [id, currentUser, db, contextRef, canvasRef]);
+
     const handleSliderChange = (_: React.SyntheticEvent | Event, newValue: number | number[]) => {
         if (typeof newValue === "number") {
             setLineWidth(newValue);
@@ -39,7 +54,7 @@ const Paint = () => {
     };
 
     function startDrawing(event: React.MouseEvent<HTMLCanvasElement>) {
-        setImageSaved(false);
+        setSaveButtonDisabled(false);
         startDrawingHandler(event);
         setSnapshot(canvasRef.current?.toDataURL());
         setIsDrawing(true);
@@ -51,14 +66,8 @@ const Paint = () => {
     }
 
     function clearCanvasHandler() {
-        setImageSaved(false);
         clearCanvas();
-        setImageSaved(true);
-    }
-
-    function handleReset() {
-        clearCanvasHandler();
-        resetImageId();
+        setSaveButtonDisabled(true);
     }
 
     function handleModeClick(mode: DrawMode) {
@@ -73,11 +82,11 @@ const Paint = () => {
                     onClick={() => {
                         saveCanvas(canvasRef);
                     }}
-                    disabled={imageSaved}
+                    disabled={isSaveButtonDisabled}
                 >
                     Save
                 </Button>
-                <Button variant={"outlined"} onClick={handleReset}>
+                <Button variant={"outlined"} onClick={handleDialogOpen}>
                     Clear
                 </Button>
             </Box>
@@ -99,6 +108,19 @@ const Paint = () => {
                 setColor={setColor}
                 handleModeClick={handleModeClick}
             />
+
+            <ConfirmationDialog
+                handleClose={handleDialogClose}
+                open={dialogOpen}
+                title={"Are you sure you want to clear canvas?"}
+            >
+                <Button variant='contained' onClick={handleReset} sx={{ marginRight: "20px" }}>
+                    YES
+                </Button>
+                <Button variant='outlined' onClick={handleDialogClose}>
+                    NO
+                </Button>
+            </ConfirmationDialog>
         </Container>
     );
 };

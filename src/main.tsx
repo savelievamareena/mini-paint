@@ -40,6 +40,11 @@ const router = createBrowserRouter([
                         element: <PaintPage />,
                         errorElement: <ErrorPage />,
                     },
+                    {
+                        path: ROUTES.EDIT,
+                        element: <PaintPage />,
+                        errorElement: <ErrorPage />,
+                    },
                 ],
             },
             {

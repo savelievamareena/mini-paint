@@ -19,6 +19,7 @@ export default function saveImageToStorage(
                     createdAt: Date.now(),
                 };
 
+                console.log("saveImageToStorage", imageId);
                 return createFirestoreDBRecord("pics", imageId, dbRecord).then((saveToDBResult) => {
                     URL.revokeObjectURL(imageUrl);
                     return saveToDBResult;

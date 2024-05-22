@@ -5,16 +5,17 @@ import { User } from "firebase/auth";
 import { storage } from "firebase";
 import { toast } from "react-toastify";
 import saveImageToStorage from "../helpers/saveImageToStorage";
+import handleDbErrors from "src/helpers/handleDbError";
 
-export default function useImageStorage(currentUser: User | null) {
-    const [imageSaved, setImageSaved] = useState(true);
-    const [imageId, setImageId] = useState(uuidv4());
+export default function useImageStorage(currentUser: User | null, id: string | undefined) {
+    const [isSaveButtonDisabled, setSaveButtonDisabled] = useState(true);
+    const [imageId, setImageId] = useState(id ? id : uuidv4());
 
     const saveCanvas = useCallback(
         (canvasRef: RefObject<HTMLCanvasElement>) => {
             if (!canvasRef.current) return;
 
-            setImageSaved(true);
+            setSaveButtonDisabled(true);
             canvasRef.current.toBlob(function (blob) {
                 if (!blob) return;
                 const imagesRef = ref(storage, imageId);
@@ -24,21 +25,17 @@ export default function useImageStorage(currentUser: User | null) {
                         if (result) {
                             toast.success("Image uploaded successfully!");
                         } else {
-                            setImageSaved(false);
+                            setSaveButtonDisabled(false);
                             toast.error("Failed to save record.");
                         }
                     });
                 } catch (error: unknown) {
-                    setImageSaved(false);
-                    if (error instanceof Error) {
-                        toast.error(`An error occurred: ${error.message}`);
-                    } else {
-                        toast.error("An unknown error occurred");
-                    }
+                    setSaveButtonDisabled(false);
+                    handleDbErrors(error);
                 }
             });
         },
-        [currentUser, imageId],
+        [currentUser, imageId, id],
     );
 
     const resetImageId = useCallback(() => {
@@ -46,5 +43,5 @@ export default function useImageStorage(currentUser: User | null) {
         setImageId(newImageId);
     }, []);
 
-    return { imageSaved, setImageSaved, imageId, saveCanvas, resetImageId };
+    return { isSaveButtonDisabled, setSaveButtonDisabled, imageId, saveCanvas, resetImageId };
 }
